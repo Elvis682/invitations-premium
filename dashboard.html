@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Espace Organisateur</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-950 text-white font-sans antialiased min-h-screen p-4 md:p-8">
+
+    <div id="auth-box" class="max-w-md mx-auto bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6 mt-12">
+        <div class="text-center">
+            <h2 class="text-2xl font-black tracking-tight" id="auth-title">Connexion Organisateur</h2>
+            <p class="text-xs text-gray-400 mt-1">Gérez vos événements et suivez vos invités</p>
+        </div>
+        <form id="auth-form" class="space-y-4">
+            <div>
+                <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Adresse Email</label>
+                <input type="email" id="auth-email" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Mot de passe</label>
+                <input type="password" id="auth-password" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
+            </div>
+            <button type="submit" id="btn-auth" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg shadow-indigo-600/20 cursor-pointer">
+                Se connecter
+            </button>
+        </form>
+        <div class="text-center pt-2">
+            <button onclick="toggleAuthMode()" id="btn-toggle-mode" class="text-xs text-indigo-400 hover:underline cursor-pointer">
+                Pas encore de compte ? S'inscrire
+            </button>
+        </div>
+    </div>
+
+    <div id="dashboard-box" class="max-w-5xl mx-auto space-y-8 hidden">
+        
+        <div class="flex justify-between items-center bg-gray-900 border border-white/10 p-4 rounded-2xl">
+            <div>
+                <p class="text-xs text-gray-400 font-medium">Ravi de vous revoir !</p>
+                <p id="user-email" class="text-sm font-bold text-indigo-400">...</p>
+            </div>
+            <button onclick="logout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">
+                <i class="fa-solid fa-power-off mr-1"></i> Déconnexion
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <div class="bg-gray-900 border border-white/10 rounded-3xl p-6 h-fit space-y-4 shadow-xl">
+                <h3 class="text-lg font-bold tracking-tight text-indigo-400 border-b border-white/5 pb-2">
+                    <i class="fa-solid fa-circle-plus mr-1"></i> Créer un Événement
+                </h3>
+                <form id="event-form" class="space-y-3 text-left">
+                    
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Titre de l'événement</label>
+                        <input type="text" id="event-title-input" required placeholder="Ex: Célébration de la vie de Feu Jean" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Qui invite ? (Hôte)</label>
+                        <input type="text" id="event-host-input" placeholder="Ex: La famille CODJO, Marc & Sophie..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Phrase d'invitation personnalisée</label>
+                        <input type="text" id="event-phrase-input" placeholder="Ex: vous prie d'assister aux obsèques de..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Type d'événement</label>
+                        <select id="event-type-input" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                            <option value="Mariage">🎉 Mariage</option>
+                            <option value="Anniversaire">🎂 Anniversaire</option>
+                            <option value="Gala / Fête">✨ Gala / Fête</option>
+                            <option value="Conférence">💼 Conférence</option>
+                            <option value="Obsèques">🕊️ Obsèques</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Date & Heure</label>
+                            <input type="datetime-local" id="event-date-input" required class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lien Unique (Slug)</label>
+                            <input type="text" id="event-slug-input" required placeholder="mariage-marc" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lieu</label>
+                        <input type="text" id="event-location-input" required placeholder="Ex: Majestic, Cotonou" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lien GPS Google Maps</label>
+                        <input type="url" id="event-maps-input" placeholder="https://maps.google.com/..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Couleur Thème</label>
+                            <input type="color" id="event-theme-input" value="#6366f1" class="w-full h-9 bg-black/40 border border-white/10 rounded-xl px-1 py-0.5 cursor-pointer">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Image de fond (Max 2Mo)</label>
+                            <input type="file" id="event-bg-file" accept="image/*" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer">
+                        Générer mon Invitation
+                    </button>
+                </form>
+            </div>
+
+            <div class="md:col-span-2 space-y-4">
+                <h3 class="text-xl font-black tracking-tight">
+                    <i class="fa-solid fa-list text-indigo-400 mr-1"></i> Mes Invitations Actives
+                </h3>
+                <div id="events-list" class="grid grid-cols-1 gap-4">
+                    <p class="text-gray-500 text-sm italic">Aucun événement créé pour le moment.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://yukywftxppvgywpsapmh.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1a3l3ZnR4cHB2Z3l3cHNhcG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDUyMTcsImV4cCI6MjA5NTk4MTIxN30.d-jB_JTMnHRyZxrZLD3eEgppt6P4cbsk0qZ7VKSMdtQ";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let isSignUpMode = false;
+        let currentUser = null;
+
+        function toggleAuthMode() {
+            isSignUpMode = !isSignUpMode;
+            document.getElementById('auth-title').innerText = isSignUpMode ? "Inscription Nouveau Compte" : "Connexion Organisateur";
+            document.getElementById('btn-auth').innerText = isSignUpMode ? "Créer mon compte" : "Se connecter";
+            document.getElementById('btn-toggle-mode').innerText = isSignUpMode ? "Déjà un compte ? Se connecter" : "Pas encore de compte ? S'inscrire";
+        }
+
+        document.getElementById('auth-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            const btn = document.getElementById('btn-auth');
+
+            btn.innerText = "Traitement...";
+            btn.disabled = true;
+
+            if (isSignUpMode) {
+                const { data, error } = await supabaseClient.auth.signUp({ email, password });
+                if (error) alert("Erreur d'inscription: " + error.message);
+                else alert("Inscription réussie ! Vérifiez vos e-mails pour confirmer.");
+            } else {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) alert("Erreur de connexion: " + error.message);
+                else checkUserSession();
+            }
+            btn.disabled = false;
+            btn.innerText = isSignUpMode ? "Créer mon compte" : "Se connecter";
+        });
+
+        async function checkUserSession() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                document.getElementById('auth-box').classList.add('hidden');
+                document.getElementById('dashboard-box').classList.remove('hidden');
+                document.getElementById('user-email').innerText = currentUser.email;
+                loadUserEvents();
+            } else {
+                document.getElementById('auth-box').classList.remove('hidden');
+                document.getElementById('dashboard-box').classList.add('hidden');
+            }
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            currentUser = null;
+            checkUserSession();
+        }
+
+        async function loadUserEvents() {
+            const { data: events, error } = await supabaseClient
+                .from('evenements')
+                .select('*, rsvp(*)') 
+                .eq('user_id', currentUser.id);
+
+            const container = document.getElementById('events-list');
+            if (error || !events || events.length === 0) {
+                container.innerHTML = `<p class="text-gray-500 text-sm italic p-4 bg-gray-900 border border-white/5 rounded-2xl">Vous n'avez pas encore généré d'invitation.</p>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            events.forEach(ev => {
+                const rsvps = ev.rsvp || [];
+                
+                const totalReponses = rsvps.length;
+                const presentsCount = rsvps.filter(r => r.presence === true).length;
+                const absentsCount = rsvps.filter(r => r.presence === false).length;
+                
+                const totalPersonnesReelles = rsvps
+                    .filter(r => r.presence === true)
+                    .reduce((sum, r) => sum + 1 + (r.nombre_accompagnateurs || 0), 0);
+
+                const currentFolderUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+                const inviteLink = `${currentFolderUrl}/index.html?e=${ev.slug}`;
+                const detailsId = `details-${ev.id}`;
+
+                let rowsHtml = "";
+                if (rsvps.length === 0) {
+                    rowsHtml = `<tr><td colspan="4" class="text-center text-xs py-4 text-gray-500 italic">Aucune réponse pour le moment</td></tr>`;
+                } else {
+                    rsvps.forEach(r => {
+                        rowsHtml += `
+                            <tr class="border-b border-white/5 text-xs text-gray-300">
+                                <td class="py-2.5 font-semibold">${r.nom_invite}</td>
+                                <td class="py-2.5">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.presence ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
+                                        ${r.presence ? 'Présent' : 'Absent'}
+                                    </span>
+                                </td>
+                                <td class="py-2.5 text-center">${r.presence ? (1 + (r.nombre_accompagnateurs || 0)) : 0}</td>
+                                <td class="py-2.5 max-w-[150px] truncate italic text-gray-400" title="${r.commentaire || ''}">${r.commentaire || '-'}</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                container.innerHTML += `
+                    <div class="bg-gray-900 border border-white/10 rounded-2xl overflow-hidden shadow-lg transition duration-200">
+                        <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="space-y-1">
+                                <span class="text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider" style="background-color: ${ev.couleur_theme || '#6366f1'}">${ev.type_evenement}</span>
+                                <h4 class="text-lg font-black pt-1">${ev.titre}</h4>
+                                <p class="text-xs text-gray-400"><i class="fa-solid fa-location-dot mr-1"></i> ${ev.lieu}</p>
+                            </div>
+                            
+                            <div class="flex items-center gap-2 bg-black/20 p-2 rounded-xl border border-white/5">
+                                <div class="text-center px-3 py-1 border-r border-white/5">
+                                    <span class="block text-sm font-black text-green-400">${presentsCount}</span>
+                                    <span class="text-[8px] uppercase text-gray-500 font-bold">Venant</span>
+                                </div>
+                                <div class="text-center px-3 py-1 border-r border-white/5">
+                                    <span class="block text-sm font-black text-red-400">${absentsCount}</span>
+                                    <span class="text-[8px] uppercase text-gray-500 font-bold">Absents</span>
+                                </div>
+                                <div class="text-center px-3 py-1">
+                                    <span class="block text-sm font-black text-indigo-400">${totalPersonnesReelles}</span>
+                                    <span class="text-[8px] uppercase text-gray-500 font-bold">Total Places</span>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5">
+                                <div class="flex gap-1">
+                                    <a href="${inviteLink}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-2 rounded-xl text-center transition flex-1 flex items-center justify-center">
+                                        <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Voir
+                                    </a>
+                                    <button onclick="document.getElementById('${detailsId}').classList.toggle('hidden')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold text-xs px-3 py-2 rounded-xl text-center transition flex-1 cursor-pointer">
+                                        <i class="fa-solid fa-users mr-1"></i> Invités
+                                    </button>
+                                </div>
+                                <button onclick="navigator.clipboard.writeText('${inviteLink}'); alert('Lien copié !');" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 font-bold text-[10px] px-3 py-1.5 rounded-xl transition cursor-pointer">
+                                    <i class="fa-solid fa-copy"></i> Copier Lien WhatsApp
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="${detailsId}" class="hidden bg-black/30 border-t border-white/5 p-4 transition-all">
+                            <h5 class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2"><i class="fa-solid fa-list-check mr-1"></i> Liste des réponses</h5>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-white/10 text-[10px] uppercase text-gray-500 tracking-wider">
+                                            <th class="pb-2">Nom complet</th>
+                                            <th class="pb-2">Statut</th>
+                                            <th class="pb-2 text-center">Pers.</th>
+                                            <th class="pb-2">Message</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${rowsHtml}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // ENREGISTRER UN ÉVÉNEMENT AVEC TOUTES LES NOUVELLES OPTIONS PREMIUM
+        document.getElementById('event-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.innerText = "Création de l'invitation...";
+            submitBtn.disabled = true;
+
+            const titre = document.getElementById('event-title-input').value;
+            const type_evenement = document.getElementById('event-type-input').value;
+            const date_heure = document.getElementById('event-date-input').value;
+            const slug = document.getElementById('event-slug-input').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
+            const lieu = document.getElementById('event-location-input').value;
+            const lien_maps = document.getElementById('event-maps-input').value;
+            const couleur_theme = document.getElementById('event-theme-input').value;
+            
+            // Extraction des nouvelles valeurs
+            const hote = document.getElementById('event-host-input').value.trim();
+            const phrase_invitation = document.getElementById('event-phrase-input').value.trim();
+            
+            const imageFile = document.getElementById('event-bg-file').files[0];
+            let image_fond = null;
+
+            if (imageFile) {
+                const maxSizeInMB = 2;
+                const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+                if (imageFile.size > maxSizeInBytes) {
+                    alert(`❌ L'image est trop lourde ! La taille maximale autorisée est de ${maxSizeInMB} Mo.`);
+                    document.getElementById('event-bg-file').value = ""; 
+                    submitBtn.innerText = "Générer mon Invitation";
+                    submitBtn.disabled = false;
+                    return; 
+                }
+            }
+
+            if (imageFile) {
+                const fileExt = imageFile.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+                const filePath = `${currentUser.id}/${fileName}`;
+
+                const { data: uploadData, error: uploadError } = await supabaseClient
+                    .storage
+                    .from('fonds-invitations')
+                    .upload(filePath, imageFile);
+
+                if (uploadError) {
+                    alert("Erreur lors du chargement de l'image : " + uploadError.message);
+                    submitBtn.innerText = "Générer mon Invitation";
+                    submitBtn.disabled = false;
+                    return;
+                }
+
+                const { data: publicUrlData } = supabaseClient
+                    .storage
+                    .from('fonds-invitations')
+                    .getPublicUrl(filePath);
+                
+                image_fond = publicUrlData.publicUrl;
+            }
+
+            // AJOUT ET ENREGISTREMENT SYNC DANS LES COLONNES HOTE ET PHRASE_INVITATION
+            const { error } = await supabaseClient
+                .from('evenements')
+                .insert([{
+                    user_id: currentUser.id,
+                    titre, 
+                    type_evenement, 
+                    date_heure, 
+                    lieu, 
+                    lien_maps, 
+                    couleur_theme, 
+                    image_fond,
+                    slug,
+                    hote: hote || null, // Permet le repli automatique sur la carte si vide
+                    phrase_invitation: phrase_invitation || null
+                }]);
+
+            if (error) {
+                alert("Erreur lors de la création en base de données : " + error.message);
+            } else {
+                alert("Félicitations ! Votre invitation premium a été configurée avec succès.");
+                document.getElementById('event-form').reset();
+                loadUserEvents();
+            }
+
+            submitBtn.innerText = "Générer mon Invitation";
+            submitBtn.disabled = false;
+        });
+
+        checkUserSession();
+    </script>
+</body>
+</html>
