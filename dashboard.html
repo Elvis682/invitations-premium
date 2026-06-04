@@ -9,6 +9,7 @@
 </head>
 <body class="bg-gray-950 text-white font-sans antialiased min-h-screen p-4 md:p-8">
 
+    <!-- FORMULAIRE D'AUTHENTIFICATION -->
     <div id="auth-box" class="max-w-md mx-auto bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6 mt-12">
         <div class="text-center">
             <h2 class="text-2xl font-black tracking-tight" id="auth-title">Connexion Organisateur</h2>
@@ -34,11 +35,13 @@
         </div>
     </div>
 
+    <!-- TABLEAU DE BORD (DASHBOARD) -->
     <div id="dashboard-box" class="max-w-5xl mx-auto space-y-8 hidden">
         
+        <!-- En-tête Utilisateur -->
         <div class="flex justify-between items-center bg-gray-900 border border-white/10 p-4 rounded-2xl">
             <div>
-                <p class="text-xs text-gray-400 font-medium">Ravi de vous revoir !</p>
+                <p class="text-xs text-gray-400 font-medium">Aloupha Cards</p>
                 <p id="user-email" class="text-sm font-bold text-indigo-400">...</p>
             </div>
             <button onclick="logout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">
@@ -48,8 +51,9 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             
+            <!-- BLOC FORMULAIRE CRÉATION / MODIFICATION -->
             <div class="bg-gray-900 border border-white/10 rounded-3xl p-6 h-fit space-y-4 shadow-xl">
-                <h3 class="text-lg font-bold tracking-tight text-indigo-400 border-b border-white/5 pb-2">
+                <h3 id="form-heading" class="text-lg font-bold tracking-tight text-indigo-400 border-b border-white/5 pb-2">
                     <i class="fa-solid fa-circle-plus mr-1"></i> Créer un Événement
                 </h3>
                 <form id="event-form" class="space-y-3 text-left">
@@ -88,7 +92,7 @@
                         <div>
                             <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lien personnalisé (Slug)</label>
                             <input type="text" id="event-slug-input" required placeholder="mariage-marc" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                            <p class="text-[9px] text-gray-500 mt-0.5">Un identifiant unique y sera ajouté.</p>
+                            <p id="slug-help-text" class="text-[9px] text-gray-500 mt-0.5">Un identifiant unique y sera ajouté.</p>
                         </div>
                     </div>
 
@@ -108,7 +112,7 @@
                             <input type="color" id="event-theme-input" value="#6366f1" class="w-full h-9 bg-black/40 border border-white/10 rounded-xl px-1 py-0.5 cursor-pointer">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Image de fond (Max 2Mo)</label>
+                            <label id="file-label" class="block text-[11px] font-medium text-gray-400 mb-0.5">Image de fond (Max 2Mo)</label>
                             <input type="file" id="event-bg-file" accept="image/*" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
                         </div>
                     </div>
@@ -116,9 +120,14 @@
                     <button type="submit" id="btn-submit-event" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer">
                         Générer mon Invitation
                     </button>
+                    
+                    <button type="button" id="btn-cancel-edit" onclick="resetFormToCreateMode()" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-medium py-2 rounded-xl transition text-xs tracking-wide hidden cursor-pointer">
+                        Annuler la modification
+                    </button>
                 </form>
             </div>
 
+            <!-- LISTE DES INVITATIONS ACTIVE -->
             <div class="md:col-span-2 space-y-4">
                 <h3 class="text-xl font-black tracking-tight">
                     <i class="fa-solid fa-list text-indigo-400 mr-1"></i> Mes Invitations Actives
@@ -130,7 +139,9 @@
 
         </div>
     </div>
-
+    <footer class="w-full text-center py-8 text-gray-600 text-xs tracking-wide border-t border-white/5 mt-12">
+        <p>Développé par <span class="text-gray-400 font-semibold">Alouphaa</span> &copy; 2026</p>
+    </footer>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = "https://yukywftxppvgywpsapmh.supabase.co"; 
@@ -139,6 +150,11 @@
 
         let isSignUpMode = false;
         let currentUser = null;
+        
+        // Variables d'état pour la modification
+        let isEditMode = false;
+        let editEventId = null;
+        let editExistingImageUrl = null;
 
         function toggleAuthMode() {
             isSignUpMode = !isSignUpMode;
@@ -189,19 +205,21 @@
             checkUserSession();
         }
 
-        // Formater les dates proprement côté UI
         function formatFrenchDate(dateString) {
             if (!dateString) return "-";
             const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
             return new Date(dateString).toLocaleDateString('fr-FR', options);
         }
 
+        // Variable globale temporaire pour stocker les objets d'événements chargés
+        let localEventsArray = [];
+
         async function loadUserEvents() {
             const { data: events, error } = await supabaseClient
                 .from('evenements')
                 .select('*, rsvp(*)') 
                 .eq('user_id', currentUser.id)
-                .order('created_at', { ascending: false }); // Les plus récents en premier
+                .order('created_at', { ascending: false });
 
             const container = document.getElementById('events-list');
             if (error || !events || events.length === 0) {
@@ -209,7 +227,9 @@
                 return;
             }
 
+            localEventsArray = events; // Sauvegarde locale pour l'édition rapide
             container.innerHTML = "";
+            
             events.forEach(ev => {
                 const rsvps = ev.rsvp || [];
                 const presentsCount = rsvps.filter(r => r.presence === true).length;
@@ -246,8 +266,8 @@
                 container.innerHTML += `
                     <div class="bg-gray-900 border border-white/10 rounded-2xl overflow-hidden shadow-lg transition duration-200">
                         <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div class="space-y-1">
-                                <div class="flex items-center gap-2">
+                            <div class="space-y-1 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider text-white" style="background-color: ${ev.couleur_theme || '#6366f1'}">${ev.type_evenement}</span>
                                     <span class="text-[10px] text-gray-500 font-mono">/${ev.slug}</span>
                                 </div>
@@ -256,7 +276,8 @@
                                 <p class="text-xs text-gray-400"><i class="fa-solid fa-location-dot mr-1 text-indigo-400"></i> ${ev.lieu}</p>
                             </div>
                             
-                            <div class="flex items-center gap-2 bg-black/20 p-2 rounded-xl border border-white/5">
+                            <!-- Statistiques abrégées -->
+                            <div class="flex items-center gap-2 bg-black/20 p-2 rounded-xl border border-white/5 h-fit">
                                 <div class="text-center px-3 py-1 border-r border-white/5">
                                     <span class="block text-sm font-black text-green-400">${presentsCount}</span>
                                     <span class="text-[8px] uppercase text-gray-500 font-bold">Venant</span>
@@ -267,25 +288,33 @@
                                 </div>
                                 <div class="text-center px-3 py-1">
                                     <span class="block text-sm font-black text-indigo-400">${totalPersonnesReelles}</span>
-                                    <span class="text-[8px] uppercase text-gray-500 font-bold">Total Places</span>
+                                    <span class="text-[8px] uppercase text-gray-500 font-bold">Places</span>
                                 </div>
                             </div>
 
-                            <div class="flex flex-col gap-1.5">
+                            <!-- BOUTONS D'ACTION (Voir, Invités, Copier + MODIFIER/SUPPRIMER) -->
+                            <div class="flex flex-col gap-1.5 min-w-[160px]">
                                 <div class="flex gap-1">
-                                    <a href="${inviteLink}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-3 py-2 rounded-xl text-center transition flex-1 flex items-center justify-center">
-                                        <i class="fa-solid fa-arrow-up-right-from-square mr-1"></i> Voir
+                                    <a href="${inviteLink}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-2.5 py-2 rounded-xl text-center transition flex-1 flex items-center justify-center">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                     </a>
-                                    <button onclick="document.getElementById('${detailsId}').classList.toggle('hidden')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold text-xs px-3 py-2 rounded-xl text-center transition flex-1 cursor-pointer">
-                                        <i class="fa-solid fa-users mr-1"></i> Invités
+                                    <button onclick="document.getElementById('${detailsId}').classList.toggle('hidden')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold text-xs px-2.5 py-2 rounded-xl text-center transition flex-1 cursor-pointer" title="Voir les invités">
+                                        <i class="fa-solid fa-users"></i>
+                                    </button>
+                                    <button onclick="prepareEditEvent('${ev.id}')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs px-2.5 py-2 rounded-xl text-center transition flex-1 cursor-pointer" title="Modifier l'événement">
+                                        <i class="fa-solid fa-pencil"></i>
+                                    </button>
+                                    <button onclick="deleteEvent('${ev.id}', '${ev.titre}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold text-xs px-2.5 py-2 rounded-xl text-center transition flex-1 cursor-pointer" title="Supprimer l'événement">
+                                        <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
                                 <button onclick="navigator.clipboard.writeText('${inviteLink}'); alert('Lien de l\\'invitation copié !');" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 font-bold text-[10px] px-3 py-1.5 rounded-xl transition cursor-pointer">
-                                    <i class="fa-solid fa-copy"></i> Copier le Lien d'Invitation
+                                    <i class="fa-solid fa-copy mr-1"></i> Copier le Lien
                                 </button>
                             </div>
                         </div>
 
+                        <!-- Tiroir masqué des Réponses Invités -->
                         <div id="${detailsId}" class="hidden bg-black/30 border-t border-white/5 p-4 transition-all">
                             <h5 class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2"><i class="fa-solid fa-list-check mr-1"></i> Liste des réponses</h5>
                             <div class="overflow-x-auto">
@@ -309,12 +338,106 @@
             });
         }
 
-        // ENREGISTRER UN ÉVÉNEMENT AVEC OPTIMISATIONS ET SÉCURISATION DU SLUG
+        // COMMUTER LE FORMULAIRE EN MODE ÉDITION (MISE A JOUR)
+        function prepareEditEvent(id) {
+            const event = localEventsArray.find(ev => ev.id === id);
+            if (!event) return;
+
+            isEditMode = true;
+            editEventId = event.id;
+            editExistingImageUrl = event.image_fond;
+
+            // Changement visuel des intitulés du formulaire
+            document.getElementById('form-heading').innerHTML = `<i class="fa-solid fa-pencil mr-1"></i> Modifier l'Événement`;
+            document.getElementById('btn-submit-event').innerText = "Enregistrer les modifications";
+            document.getElementById('btn-submit-event').className = "w-full bg-amber-500 hover:bg-amber-600 text-black font-black py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer";
+            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+
+            // Pré-remplissage des champs
+            document.getElementById('event-title-input').value = event.titre;
+            document.getElementById('event-host-input').value = event.hote || "";
+            document.getElementById('event-phrase-input').value = event.phrase_invitation || "";
+            document.getElementById('event-type-input').value = event.type_evenement;
+            document.getElementById('event-location-input').value = event.lieu;
+            document.getElementById('event-maps-input').value = event.lien_maps || "";
+            document.getElementById('event-theme-input').value = event.couleur_theme || "#6366f1";
+            
+            // Formatage de la date pour le champ type="datetime-local" (YYYY-MM-DDTHH:MM)
+            if (event.date_heure) {
+                const d = new Date(event.date_heure);
+                const isoStr = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString();
+                document.getElementById('event-date-input').value = isoStr.slice(0, 16);
+            }
+
+            // Gestion du slug en modification (Désactivé pour ne pas casser les liens déjà partagés)
+            const slugInput = document.getElementById('event-slug-input');
+            slugInput.value = event.slug.split('-').slice(0, -1).join('-'); // affiche la racine
+            slugInput.disabled = true;
+            slugInput.classList.add('opacity-40');
+            document.getElementById('slug-help-text').innerText = "Le lien unique de cette invitation ne peut plus être changé.";
+            
+            if (event.image_fond) {
+                document.getElementById('file-label').innerText = "Remplacer l'image (Optionnel)";
+            }
+
+            // Remonter automatiquement l'écran sur le formulaire
+            document.getElementById('form-heading').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // RÉINITIALISER LE FORMULAIRE EN MODE CRÉATION INTÉGRALE
+        function resetFormToCreateMode() {
+            isEditMode = false;
+            editEventId = null;
+            editExistingImageUrl = null;
+
+            document.getElementById('form-heading').innerHTML = `<i class="fa-solid fa-circle-plus mr-1"></i> Créer un Événement`;
+            document.getElementById('btn-submit-event').innerText = "Générer mon Invitation";
+            document.getElementById('btn-submit-event').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+
+            const slugInput = document.getElementById('event-slug-input');
+            slugInput.disabled = false;
+            slugInput.classList.remove('opacity-40');
+            document.getElementById('slug-help-text').innerText = "Un identifiant unique y sera ajouté.";
+            document.getElementById('file-label').innerText = "Image de fond (Max 2Mo)";
+
+            document.getElementById('event-form').reset();
+        }
+
+        // SUPPRESSION SÉCURISÉE D'UN ÉVÉNEMENT
+        async function deleteEvent(id, title) {
+            const confirmation = confirm(`⚠️ Êtes-vous sûr de vouloir supprimer définitivement l'événement "${title}" ?\n\nCette action effacera également TOUTES les réponses des invités associées.`);
+            if (!confirmation) return;
+
+            // 1. Suppression des RSVP dépendants d'abord (Si ON DELETE CASCADE n'est pas actif dans PostgreSQL)
+            await supabaseClient
+                .from('rsvp')
+                .delete()
+                .eq('evenement_id', id);
+
+            // 2. Suppression de l'événement principal
+            const { error } = await supabaseClient
+                .from('evenements')
+                .delete()
+                .eq('id', id);
+
+            if (error) {
+                alert("Erreur lors de la suppression : " + error.message);
+            } else {
+                alert("🗑️ L'événement a été supprimé avec succès.");
+                if (isEditMode && editEventId === id) {
+                    resetFormToCreateMode();
+                }
+                loadUserEvents();
+            }
+        }
+
+        // TRAITEMENT ENVOI : AJOUT OU MODIFICATION (UPSERT LOGIC)
         document.getElementById('event-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const submitBtn = document.getElementById('btn-submit-event');
-            submitBtn.innerText = "Création de l'invitation...";
+            submitBtn.innerText = isEditMode ? "Enregistrement..." : "Création de l'invitation...";
             submitBtn.disabled = true;
 
             const titre = document.getElementById('event-title-input').value.trim();
@@ -326,18 +449,10 @@
             const hote = document.getElementById('event-host-input').value.trim();
             const phrase_invitation = document.getElementById('event-phrase-input').value.trim();
             
-            // 1. Gestion Premium du Slug (Nettoyage + Suffixe Unique Aléatoire à 4 caractères)
-            let rawSlug = document.getElementById('event-slug-input').value.trim().toLowerCase();
-            rawSlug = rawSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Supprime les accents
-            rawSlug = rawSlug.replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''); // Nettoie la chaîne
-            
-            if (!rawSlug) rawSlug = "evenement";
-            const uniqueId = Math.floor(1000 + Math.random() * 9000); // Génère 4 chiffres (ex: 4921)
-            const slug = `${rawSlug}-${uniqueId}`;
-
             const imageFile = document.getElementById('event-bg-file').files[0];
-            let image_fond = null;
+            let image_fond = isEditMode ? editExistingImageUrl : null;
 
+            // Upload de la nouvelle image si elle est fournie
             if (imageFile) {
                 const maxSizeInMB = 2;
                 const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
@@ -345,12 +460,11 @@
                 if (imageFile.size > maxSizeInBytes) {
                     alert(`❌ L'image est trop lourde ! La taille maximale autorisée est de ${maxSizeInMB} Mo.`);
                     document.getElementById('event-bg-file').value = ""; 
-                    submitBtn.innerText = "Générer mon Invitation";
+                    submitBtn.innerText = isEditMode ? "Enregistrement..." : "Générer mon Invitation";
                     submitBtn.disabled = false;
                     return; 
                 }
 
-                // Upload vers Supabase Storage
                 const fileExt = imageFile.name.split('.').pop();
                 const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
                 const filePath = `${currentUser.id}/${fileName}`;
@@ -361,13 +475,12 @@
                     .upload(filePath, imageFile);
 
                 if (uploadError) {
-                    alert("Erreur lors du chargement de l'image : " + uploadError.message);
-                    submitBtn.innerText = "Générer mon Invitation";
+                    alert("Erreur lors du chargement de la nouvelle image : " + uploadError.message);
+                    submitBtn.innerText = isEditMode ? "Enregistrement..." : "Générer mon Invitation";
                     submitBtn.disabled = false;
                     return;
                 }
 
-                // Récupération de l'URL publique
                 const { data: publicUrlData } = supabaseClient
                     .storage
                     .from('fonds-invitations')
@@ -376,32 +489,67 @@
                 image_fond = publicUrlData.publicUrl;
             }
 
-            // Insertion synchronisée en base de données
-            const { error } = await supabaseClient
-                .from('evenements')
-                .insert([{
-                    user_id: currentUser.id,
-                    titre, 
-                    type_evenement, 
-                    date_heure, 
-                    lieu, 
-                    lien_maps: lien_maps || null, 
-                    couleur_theme, 
-                    image_fond,
-                    slug,
-                    hote: hote || null,
-                    phrase_invitation: phrase_invitation || null
-                }]);
+            if (isEditMode) {
+                // EXÉCUTER UNE MISE À JOUR (UPDATE)
+                const { error } = await supabaseClient
+                    .from('evenements')
+                    .update({
+                        titre, 
+                        type_evenement, 
+                        date_heure, 
+                        lieu, 
+                        lien_maps: lien_maps || null, 
+                        couleur_theme, 
+                        image_fond,
+                        hote: hote || null,
+                        phrase_invitation: phrase_invitation || null
+                    })
+                    .eq('id', editEventId);
 
-            if (error) {
-                alert("Erreur lors de la création en base de données : " + error.message);
+                if (error) {
+                    alert("Erreur lors de la mise à jour : " + error.message);
+                } else {
+                    alert("✨ L'événement a été modifié avec succès !");
+                    resetFormToCreateMode();
+                    loadUserEvents();
+                }
+
             } else {
-                alert(`🎉 Félicitations ! Votre invitation a été configurée.\nLien généré : /index.html?e=${slug}`);
-                document.getElementById('event-form').reset();
-                loadUserEvents();
+                // EXÉCUTER UNE INSERTION CLASSIQUE (CREATE)
+                let rawSlug = document.getElementById('event-slug-input').value.trim().toLowerCase();
+                rawSlug = rawSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                rawSlug = rawSlug.replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                
+                if (!rawSlug) rawSlug = "evenement";
+                const uniqueId = Math.floor(1000 + Math.random() * 9000); 
+                const slug = `${rawSlug}-${uniqueId}`;
+
+                const { error } = await supabaseClient
+                    .from('evenements')
+                    .insert([{
+                        user_id: currentUser.id,
+                        titre, 
+                        type_evenement, 
+                        date_heure, 
+                        lieu, 
+                        lien_maps: lien_maps || null, 
+                        couleur_theme, 
+                        image_fond,
+                        slug,
+                        hote: hote || null,
+                        phrase_invitation: phrase_invitation || null
+                    }]);
+
+                if (error) {
+                    alert("Erreur lors de la création : " + error.message);
+                } else {
+                    alert(`🎉 Félicitations ! Votre invitation a été configurée.\nLien généré : /index.html?e=${slug}`);
+                    document.getElementById('event-form').reset();
+                    loadUserEvents();
+                }
             }
 
-            submitBtn.innerText = "Générer mon Invitation";
+            submitBtn.innerText = isEditMode ? "Enregistrement..." : "Générer mon Invitation";
             submitBtn.disabled = false;
         });
 
