@@ -3,296 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faire-part Numérique Premium</title>
+    <title>Votre Invitation Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
-
     <style>
-        body { font-family: 'Montserrat', sans-serif; }
-        .serif-font { font-family: 'Playfair Display', serif; }
-        
-        /* Arrière-plan avec un voile sombre progressif très pro */
-        .glass-bg {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.03) 100%);
+        /* Animation subtile pour inciter au défilement */
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
-        .main-card {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px 0 rgba(255, 255, 255, 0.03);
+        .animate-bounce-slow {
+            animation: bounce-slow 2s infinite;
         }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex justify-center items-center p-4 md:p-6" id="main-body" style="background-image: url('https://images.unsplash.com/photo-1513151233558-d860c5398176'); background-size: cover; background-position: center; background-attachment: fixed;">
+<body class="bg-gray-950 text-white font-sans antialiased relative min-h-screen">
 
-    <div class="fixed inset-0 bg-slate-950/75 -z-10 backdrop-blur-[2px]"></div>
+    <!-- FOND DE BASE POUR LES CÔTÉS SUR ÉCRAN LARGE -->
+    <div class="fixed inset-0 bg-gray-950 z-0"></div>
 
-    <div class="w-full max-w-lg bg-slate-900/80 backdrop-blur-2xl rounded-[2rem] border border-white/15 p-6 md:p-8 text-center space-y-6 main-card my-auto">
+    <!-- ÉLÉMENT 1 : L'IMAGE DE FOND FIXE (Centrée et bridée sur PC, plein écran sur Mobile) -->
+    <div id="bg-image-container" class="fixed inset-y-0 inset-x-0 md:max-w-xl md:mx-auto bg-cover bg-center bg-no-repeat z-10 transition-all duration-500 shadow-[0_0_60px_rgba(0,0,0,0.8)]"></div>
+
+    <!-- SÉLECTION DU COUVERT DE FLOU (Suit exactement la même zone centrée que l'image) -->
+    <div id="blur-overlay" class="fixed inset-y-0 inset-x-0 md:max-w-xl md:mx-auto z-20 bg-black/30 backdrop-blur-0 transition-all duration-700 pointer-events-none"></div>
+
+    <!-- ÉLÉMENT 2 : PREMIÈRE SECTION (HERO) - Centrée et alignée sur le conteneur d'image -->
+    <div class="relative z-30 min-h-screen w-full max-w-xl mx-auto flex flex-col justify-end items-center pb-12 px-6 text-center bg-gradient-to-t from-black/95 via-black/30 to-black/40">
+        <div class="space-y-4 max-w-md mx-auto mb-8">
+            <h1 id="hero-title" class="text-3xl md:text-4xl font-black tracking-tight text-white drop-shadow-lg">Vous êtes invité</h1>
+            <p id="hero-subtitle" class="text-sm md:text-base text-gray-200 font-medium drop-shadow-md">Découvrez les détails de l'événement ci-dessous</p>
+        </div>
         
-        <div class="flex justify-center">
-            <span id="event-type" class="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] bg-white/5 text-white border border-white/10 shadow-inner">
-                Chargement...
-            </span>
+        <!-- Message d'incitation au scroll -->
+        <div class="animate-bounce-slow flex flex-col items-center gap-2 cursor-pointer" onclick="scrollToCard()">
+            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400 drop-shadow">Faire défiler pour voir votre carte d'invitation</span>
+            <i class="fa-solid fa-chevron-down text-lg text-indigo-400"></i>
         </div>
-
-        <div class="space-y-1">
-            <p id="event-hosts" class="text-[11px] uppercase tracking-[0.25em] text-slate-400 font-semibold">
-                ...
-            </p>
-            <p id="event-phrase" class="serif-font italic text-base text-slate-300">
-                ...
-            </p>
-        </div>
-
-        <div class="py-2">
-            <h1 id="event-title" class="serif-font text-3xl md:text-4xl font-bold tracking-wide text-white leading-tight drop-shadow-md">
-                ...
-            </h1>
-        </div>
-
-        <div class="grid grid-cols-1 gap-2.5 text-left">
-            <div class="glass-bg border border-white/10 rounded-2xl p-4 flex items-center gap-4">
-                <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white text-xl shadow-inner border border-white/5" id="date-icon-box">
-                    <i class="fa-regular fa-calendar-days"></i>
-                </div>
-                <div>
-                    <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Date de l'événement</p>
-                    <p id="event-date-text" class="text-sm font-semibold text-white mt-0.5">...</p>
-                </div>
-            </div>
-
-            <div class="glass-bg border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-white text-xl shadow-inner border border-white/5" id="location-icon-box">
-                        <i class="fa-solid fa-location-dot"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Lieu & Emplacement</p>
-                        <p id="event-location" class="text-sm font-semibold text-white mt-0.5">...</p>
-                    </div>
-                </div>
-                <a id="event-maps" href="#" target="_blank" class="inline-flex items-center justify-center bg-white text-slate-950 hover:bg-slate-200 px-4 py-2.5 rounded-xl transition duration-300 text-xs font-bold shadow-md shrink-0">
-                    <i class="fa-solid fa-map-location-dot mr-1.5"></i> Itinéraire
-                </a>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-4 gap-2 pt-2">
-            <div class="glass-bg border border-white/5 rounded-xl p-3">
-                <span id="countdown-days" class="block text-2xl font-bold tracking-tight text-white">00</span>
-                <span class="text-[8px] uppercase text-slate-400 font-bold tracking-widest block mt-0.5">Jours</span>
-            </div>
-            <div class="glass-bg border border-white/5 rounded-xl p-3">
-                <span id="countdown-hours" class="block text-2xl font-bold tracking-tight text-white">00</span>
-                <span class="text-[8px] uppercase text-slate-400 font-bold tracking-widest block mt-0.5">Heures</span>
-            </div>
-            <div class="glass-bg border border-white/5 rounded-xl p-3">
-                <span id="countdown-minutes" class="block text-2xl font-bold tracking-tight text-white">00</span>
-                <span class="text-[8px] uppercase text-slate-400 font-bold tracking-widest block mt-0.5">Min</span>
-            </div>
-            <div class="glass-bg border border-white/5 rounded-xl p-3">
-                <span id="countdown-seconds" class="block text-2xl font-bold tracking-tight text-white">00</span>
-                <span class="text-[8px] uppercase text-slate-400 font-bold tracking-widest block mt-0.5">Sec</span>
-            </div>
-        </div>
-
-        <div class="border-t border-white/10 pt-5 text-left space-y-4">
-            <div class="text-center">
-                <h3 class="text-sm font-bold uppercase tracking-wider text-white">Confirmer votre présence</h3>
-                <p class="text-[11px] text-slate-400 mt-0.5">Merci de répondre avant le début de la cérémonie</p>
-            </div>
-            
-            <form id="rsvp-form" class="space-y-3.5 max-w-sm mx-auto">
-                <input type="text" id="guest-name" required placeholder="Votre Nom complet" 
-                       class="w-full bg-slate-950/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition text-white placeholder:text-slate-500">
-
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" id="btn-present" onclick="setPresence(true)"
-                            class="py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center bg-white/5 text-slate-300 hover:text-white cursor-pointer">
-                        <i class="fa-solid fa-check mr-2 text-emerald-400 opacity-0" id="check-present"></i> Je viens
-                    </button>
-                    <button type="button" id="btn-absent" onclick="setPresence(false)"
-                            class="py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-wider transition-all duration-200 flex items-center justify-center bg-white/5 text-slate-300 hover:text-white cursor-pointer">
-                        <i class="fa-solid fa-xmark mr-2 text-rose-400 opacity-0" id="check-absent"></i> J'annule
-                    </button>
-                </div>
-
-                <div id="companions-box" class="hidden space-y-1">
-                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Nombre d'accompagnateurs</label>
-                    <input type="number" id="guest-companions" min="0" value="0"
-                           class="w-full bg-slate-950/40 border border-white/10 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-white/30 transition text-white">
-                </div>
-
-                <textarea id="guest-comment" rows="2" placeholder="Un mot pour l'organisateur... (Optionnel)" 
-                          class="w-full bg-slate-950/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-white/30 transition placeholder:text-slate-500 text-white resize-none"></textarea>
-
-                <button type="submit" id="btn-submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 rounded-xl transition duration-300 text-xs uppercase tracking-widest shadow-lg cursor-pointer">
-                    Confirmer mon RSVP
-                </button>
-            </form>
-        </div>
-
-        <p class="text-[9px] text-slate-500 font-bold tracking-widest uppercase pt-2 border-t border-white/5">
-            ✨ Invitation Officielle Électronique
-        </p>
     </div>
 
+    <!-- ÉLÉMENT 3 : CONTENU DE LA CARTE D'INVITATION (S'affiche en défilant) -->
+    <div id="main-content" class="relative z-30 w-full max-w-xl mx-auto px-4 pb-24">
+        
+        <!-- La Carte d'invitation Premium -->
+        <div class="bg-gray-900/90 border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 backdrop-blur-md">
+            
+            <!-- Badge Type Événement -->
+            <div class="text-center">
+                <span id="badge-type" class="text-[10px] bg-indigo-600 px-3 py-1.5 rounded-full font-black uppercase tracking-widest text-white shadow-lg">Événement</span>
+            </div>
+
+            <!-- En-tête de l'invitation -->
+            <div class="text-center space-y-2">
+                <p id="card-host" class="text-xs uppercase font-bold tracking-widest text-indigo-400">L'Hôte</p>
+                <p id="card-phrase" class="text-sm italic text-gray-400">vous prie d'honorer de votre présence</p>
+                <h2 id="card-title" class="text-2xl md:text-3xl font-black tracking-tight text-white pt-2">Chargement...</h2>
+            </div>
+
+            <hr class="border-white/5">
+
+            <!-- Infos logistiques (Date, Lieu) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-black/30 border border-white/5 p-4 rounded-2xl flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center text-indigo-400">
+                        <i class="fa-solid fa-calendar-days text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Date & Heure</p>
+                        <p id="card-date" class="text-xs font-bold text-gray-200">...</p>
+                    </div>
+                </div>
+
+                <div class="bg-black/30 border border-white/5 p-4 rounded-2xl flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center text-indigo-400">
+                        <i class="fa-solid fa-location-dot text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Lieu</p>
+                        <p id="card-location" class="text-xs font-bold text-gray-200 truncate max-w-[160px]">...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bouton GPS itinéraire -->
+            <div id="wrapper-maps" class="hidden">
+                <a id="btn-maps" href="#" target="_blank" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3 rounded-xl transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-map-location-dot text-indigo-400"></i> Voir l'itinéraire Google Maps
+                </a>
+            </div>
+
+            <!-- FORMULAIRE RSVP INCORPORÉ -->
+            <div class="bg-black/40 border border-white/5 p-5 rounded-2xl space-y-4">
+                <h3 class="text-sm font-black uppercase tracking-wider text-indigo-400 text-center">
+                    <i class="fa-solid fa-envelope-open-text mr-1"></i> Confirmez votre présence
+                </h3>
+                
+                <form id="rsvp-form" class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase text-gray-400 mb-1">Votre nom complet</label>
+                        <input type="text" id="rsvp-name" required placeholder="Ex: M. & Mme KPADONOU" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase text-gray-400 mb-1">Serez-vous présent ?</label>
+                        <select id="rsvp-presence" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <option value="true">✅ Oui, j'assisterai avec plaisir</option>
+                            <option value="false">❌ Non, je serai absent(e)</option>
+                        </select>
+                    </div>
+
+                    <div id="wrapper-guests">
+                        <label class="block text-[10px] font-semibold uppercase text-gray-400 mb-1">Nombre d'accompagnateurs</label>
+                        <input type="number" id="rsvp-guests" min="0" value="0" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase text-gray-400 mb-1">Un petit message ou commentaire ? (Optionnel)</label>
+                        <textarea id="rsvp-comment" rows="2" placeholder="Ex: Félicitations aux heureux mariés !" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                    </div>
+
+                    <button type="submit" id="btn-submit-rsvp" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2.5 rounded-xl transition text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/10 cursor-pointer">
+                        Envoyer ma réponse
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LOGIQUE LOGICIELLE & SUPABASE -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = "https://yukywftxppvgywpsapmh.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1a3l3ZnR4cHB2Z3l3cHNhcG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDUyMTcsImV4cCI6MjA5NTk4MTIxN30.d-jB_JTMnHRyZxrZLD3eEgppt6P4cbsk0qZ7VKSMdtQ"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1a3l3ZnR4cHB2Z3l3cHNhcG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDUyMTcsImV4cCI6MjA5NTk4MTIxN30.d-jB_JTMnHRyZxrZLD3eEgppt6P4cbsk0qZ7VKSMdtQ";
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let eventId = null; 
-        let isPresent = null;
+        let eventId = null;
 
-        function setPresence(status) {
-            isPresent = status;
-            const btnP = document.getElementById('btn-present');
-            const btnA = document.getElementById('btn-absent');
-            const checkP = document.getElementById('check-present');
-            const checkA = document.getElementById('check-absent');
-            const compBox = document.getElementById('companions-box');
+        // ÉCOUTEUR DE SCROLL : Rend l'arrière-plan flou uniquement sur la zone de l'image
+        window.addEventListener('scroll', () => {
+            const overlay = document.getElementById('blur-overlay');
+            const scrolled = window.scrollY;
+            const screenHeight = window.innerHeight;
 
-            if(status) {
-                btnP.className = "py-3 rounded-xl border border-emerald-500/40 text-xs font-bold uppercase tracking-wider transition-all bg-emerald-500/10 text-emerald-400 flex items-center justify-center cursor-pointer shadow-md";
-                btnA.className = "py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-wider transition-all bg-white/5 text-slate-400 flex items-center justify-center cursor-pointer";
-                checkP.classList.remove('opacity-0');
-                checkA.classList.add('opacity-0');
-                compBox.classList.remove('hidden');
+            // Calcul du ratio de scroll (Maximum appliqué à la moitié de l'écran)
+            const ratio = Math.min(scrolled / (screenHeight * 0.4), 1);
+            
+            if (ratio > 0.1) {
+                overlay.style.backdropFilter = `blur(${ratio * 14}px)`; // Flou progressif jusqu'à 14px
+                overlay.style.backgroundColor = `rgba(0, 0, 0, ${ratio * 0.65})`; // Assombrissement ciblé
             } else {
-                btnA.className = "py-3 rounded-xl border border-rose-500/40 text-xs font-bold uppercase tracking-wider transition-all bg-rose-500/10 text-rose-400 flex items-center justify-center cursor-pointer shadow-md";
-                btnP.className = "py-3 rounded-xl border border-white/10 text-xs font-bold uppercase tracking-wider transition-all bg-white/5 text-slate-400 flex items-center justify-center cursor-pointer";
-                checkA.classList.remove('opacity-0');
-                checkP.classList.add('opacity-0');
-                compBox.classList.add('hidden');
-                document.getElementById('guest-companions').value = 0;
-            }
-        }
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const eventSlug = urlParams.get('e') || 'anniv-christelle'; 
-
-        async function loadEvent() {
-            const { data: evenement, error } = await supabaseClient
-                .from('evenements')
-                .select('*')
-                .eq('slug', eventSlug)
-                .single();
-
-            if (error || !evenement) {
-                document.getElementById('event-title').innerText = "Événement introuvable 😢";
-                return;
-            }
-
-            eventId = evenement.id;
-
-            // Remplissage des données
-            document.getElementById('event-title').innerText = evenement.titre;
-            document.getElementById('event-type').innerText = evenement.type_evenement;
-            document.getElementById('event-location').innerText = evenement.lieu;
-            document.getElementById('event-maps').href = evenement.lien_maps || '#';
-            
-            document.getElementById('event-hosts').innerText = evenement.hote || "Invitation Cordiale";
-            
-            let phraseParDefaut = "vous invite à participer à cet événement marquant :";
-            if(evenement.type_evenement === "Obsèques") phraseParDefaut = "a la profonde douleur d'annoncer les obsèques de :";
-            if(evenement.type_evenement === "Mariage") phraseParDefaut = "vous invite à venir célébrer l'union de :";
-            
-            document.getElementById('event-phrase').innerText = evenement.phrase_invitation || phraseParDefaut;
-
-            // Formatage de la date en français complet
-            const dateObj = new Date(evenement.date_heure);
-            const textDateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-            const timeString = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
-            const fullDateFormatted = dateObj.toLocaleDateString('fr-FR', textDateOptions);
-            
-            document.getElementById('event-date-text').innerText = `${fullDateFormatted} dès ${timeString}`;
-
-            // Ajustement "Obsèques"
-            if (evenement.type_evenement === "Obsèques") {
-                document.getElementById('btn-absent').innerHTML = `<i class="fa-solid fa-xmark mr-2 text-rose-500 opacity-0" id="check-absent"></i> Ne peut venir`;
-            }
-
-            // Design visuel adaptatif complet
-            if (evenement.image_fond) {
-                document.getElementById('main-body').style.backgroundImage = `url('${evenement.image_fond}')`;
-            }
-            if (evenement.couleur_theme) {
-                const themeColor = evenement.couleur_theme;
-                document.getElementById('event-type').style.borderColor = themeColor;
-                document.getElementById('event-type').style.color = themeColor;
-                document.getElementById('date-icon-box').style.color = themeColor;
-                document.getElementById('location-icon-box').style.color = themeColor;
-                
-                if(evenement.type_evenement !== "Obsèques") {
-                    document.getElementById('btn-submit').style.backgroundColor = themeColor;
-                }
-            }
-
-            initCountdown(evenement.date_heure);
-        }
-
-        function initCountdown(targetDateStr) {
-            const targetDate = new Date(targetDateStr).getTime();
-            const timer = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = targetDate - now;
-
-                if (distance < 0) {
-                    clearInterval(timer);
-                    return; 
-                }
-
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                document.getElementById('countdown-days').innerText = days < 10 ? '0' + days : days;
-                document.getElementById('countdown-hours').innerText = hours < 10 ? '0' + hours : hours;
-                document.getElementById('countdown-minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
-                document.getElementById('countdown-seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
-            }, 1000);
-        }
-
-        document.getElementById('rsvp-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (isPresent === null) {
-                alert("Veuillez indiquer votre présence !");
-                return;
-            }
-
-            const nomInvite = document.getElementById('guest-name').value;
-            const nbrCompanions = parseInt(document.getElementById('guest-companions').value) || 0;
-            const commentaire = document.getElementById('guest-comment').value;
-            const btnSubmit = document.getElementById('btn-submit');
-
-            btnSubmit.innerText = "Transmission de votre réponse...";
-            btnSubmit.disabled = true;
-
-            const { error } = await supabaseClient
-                .from('rsvp')
-                .insert([{ 
-                    evenement_id: eventId, nom_invite: nomInvite, presence: isPresent, nombre_accompagnateurs: nbrCompanions, commentaire: commentaire 
-                }]);
-
-            if (error) {
-                alert("Erreur : " + error.message);
-                btnSubmit.innerText = "Confirmer mon RSVP";
-                btnSubmit.disabled = false;
-            } else {
-                document.getElementById('rsvp-form').innerHTML = `
-                    <div class="text-center p-6 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 serif-font">
-                        <i class="fa-solid fa-envelope-circle-check text-3xl mb-2 block"></i>
-                        <p class="font-bold text-sm">Votre réponse a bien été transmise avec succès !</p>
-                    </div>
-                `;
+                overlay.style.backdropFilter = 'blur(0px)';
+                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
             }
         });
 
-        loadEvent();
+        function scrollToCard() {
+            document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function formatFrenchDate(dateString) {
+            if (!dateString) return "-";
+            return new Date(dateString).toLocaleDateString('fr-FR', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+        }
+
+        // CHARGEMENT DE L'INVITATION DEPUIS L'URL SLUG
+        async function initInvitation() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const slug = urlParams.get('e');
+
+            if (!slug) {
+                document.getElementById('card-title').innerText = "Invitation introuvable ❌";
+                return;
+            }
+
+            const { data: event, error } = await supabaseClient
+                .from('evenements')
+                .select('*')
+                .eq('slug', slug)
+                .single();
+
+            if (error || !event) {
+                document.getElementById('card-title').innerText = "Événement non répertorié 🕊️";
+                return;
+            }
+
+            eventId = event.id;
+
+            // Attribution de l'image de fond
+            if (event.image_fond) {
+                document.getElementById('bg-image-container').style.backgroundImage = `url('${event.image_fond}')`;
+            } else {
+                document.getElementById('bg-image-container').style.backgroundColor = "#0b0f19";
+            }
+
+            // Personnalisation des éléments textuels
+            document.getElementById('hero-title').innerText = event.titre;
+            document.getElementById('card-title').innerText = event.titre;
+            document.getElementById('card-date').innerText = formatFrenchDate(event.date_heure);
+            document.getElementById('card-location').innerText = event.lieu;
+            
+            // Type d'événement & couleur thématique
+            const badge = document.getElementById('badge-type');
+            badge.innerText = event.type_evenement;
+            if (event.couleur_theme) {
+                badge.style.backgroundColor = event.couleur_theme;
+                document.getElementById('btn-submit-rsvp').style.backgroundColor = event.couleur_theme;
+            }
+
+            // Gestion de l'affichage de l'hôte et de la phrase d'invitation
+            document.getElementById('card-host').innerText = event.hote ? event.hote : "Invitation Spéciale";
+            document.getElementById('card-phrase').innerText = event.phrase_invitation ? event.phrase_invitation : "vous invite chaleureusement à prendre part à cet événement :";
+
+            // Gestion du lien de cartographie GPS
+            if (event.lien_maps) {
+                const mapBtn = document.getElementById('btn-maps');
+                mapBtn.href = event.lien_maps;
+                document.getElementById('wrapper-maps').classList.remove('hidden');
+            }
+        }
+
+        // Toggle visuel du nombre d'accompagnateurs si absent
+        document.getElementById('rsvp-presence').addEventListener('change', (e) => {
+            const guestWrapper = document.getElementById('wrapper-guests');
+            if (e.target.value === "false") {
+                guestWrapper.classList.add('hidden');
+                document.getElementById('rsvp-guests').value = 0;
+            } else {
+                guestWrapper.classList.remove('hidden');
+            }
+        });
+
+        // ENREGISTREMENT DES RÉPONSES RSVP
+        document.getElementById('rsvp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-rsvp');
+            btn.disabled = true;
+            btn.innerText = "Transmission en cours...";
+
+            const nom_invite = document.getElementById('rsvp-name').value.trim();
+            const presence = document.getElementById('rsvp-presence').value === "true";
+            const nombre_accompagnateurs = parseInt(document.getElementById('rsvp-guests').value) || 0;
+            const commentaire = document.getElementById('rsvp-comment').value.trim();
+
+            const { error } = await supabaseClient
+                .from('rsvp')
+                .insert([{
+                    evenement_id: eventId,
+                    nom_invite,
+                    presence,
+                    nombre_accompagnateurs,
+                    commentaire: commentaire || null
+                }]);
+
+            if (error) {
+                alert("Une erreur est survenue lors de l'envoi : " + error.message);
+            } else {
+                alert("✨ Merci pour votre réponse ! Elle a bien été transmise à l'organisateur.");
+                document.getElementById('rsvp-form').reset();
+            }
+            btn.disabled = false;
+            btn.innerText = "Envoyer ma réponse";
+        });
+
+        initInvitation();
     </script>
 </body>
 </html>
