@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Espace Organisateur</title>
+    <title>Mon Espace Organisateur - Premium</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -86,8 +86,9 @@
                             <input type="datetime-local" id="event-date-input" required class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
                         </div>
                         <div>
-                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lien Unique (Slug)</label>
+                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lien personnalisé (Slug)</label>
                             <input type="text" id="event-slug-input" required placeholder="mariage-marc" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <p class="text-[9px] text-gray-500 mt-0.5">Un identifiant unique y sera ajouté.</p>
                         </div>
                     </div>
 
@@ -112,7 +113,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer">
+                    <button type="submit" id="btn-submit-event" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer">
                         Générer mon Invitation
                     </button>
                 </form>
@@ -188,11 +189,19 @@
             checkUserSession();
         }
 
+        // Formater les dates proprement côté UI
+        function formatFrenchDate(dateString) {
+            if (!dateString) return "-";
+            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return new Date(dateString).toLocaleDateString('fr-FR', options);
+        }
+
         async function loadUserEvents() {
             const { data: events, error } = await supabaseClient
                 .from('evenements')
                 .select('*, rsvp(*)') 
-                .eq('user_id', currentUser.id);
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false }); // Les plus récents en premier
 
             const container = document.getElementById('events-list');
             if (error || !events || events.length === 0) {
@@ -203,8 +212,6 @@
             container.innerHTML = "";
             events.forEach(ev => {
                 const rsvps = ev.rsvp || [];
-                
-                const totalReponses = rsvps.length;
                 const presentsCount = rsvps.filter(r => r.presence === true).length;
                 const absentsCount = rsvps.filter(r => r.presence === false).length;
                 
@@ -240,9 +247,13 @@
                     <div class="bg-gray-900 border border-white/10 rounded-2xl overflow-hidden shadow-lg transition duration-200">
                         <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div class="space-y-1">
-                                <span class="text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider" style="background-color: ${ev.couleur_theme || '#6366f1'}">${ev.type_evenement}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider text-white" style="background-color: ${ev.couleur_theme || '#6366f1'}">${ev.type_evenement}</span>
+                                    <span class="text-[10px] text-gray-500 font-mono">/${ev.slug}</span>
+                                </div>
                                 <h4 class="text-lg font-black pt-1">${ev.titre}</h4>
-                                <p class="text-xs text-gray-400"><i class="fa-solid fa-location-dot mr-1"></i> ${ev.lieu}</p>
+                                <p class="text-xs text-gray-400"><i class="fa-solid fa-calendar-days mr-1 text-indigo-400"></i> ${formatFrenchDate(ev.date_heure)}</p>
+                                <p class="text-xs text-gray-400"><i class="fa-solid fa-location-dot mr-1 text-indigo-400"></i> ${ev.lieu}</p>
                             </div>
                             
                             <div class="flex items-center gap-2 bg-black/20 p-2 rounded-xl border border-white/5">
@@ -269,8 +280,8 @@
                                         <i class="fa-solid fa-users mr-1"></i> Invités
                                     </button>
                                 </div>
-                                <button onclick="navigator.clipboard.writeText('${inviteLink}'); alert('Lien copié !');" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 font-bold text-[10px] px-3 py-1.5 rounded-xl transition cursor-pointer">
-                                    <i class="fa-solid fa-copy"></i> Copier Lien WhatsApp
+                                <button onclick="navigator.clipboard.writeText('${inviteLink}'); alert('Lien de l\\'invitation copié !');" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 font-bold text-[10px] px-3 py-1.5 rounded-xl transition cursor-pointer">
+                                    <i class="fa-solid fa-copy"></i> Copier le Lien d'Invitation
                                 </button>
                             </div>
                         </div>
@@ -298,26 +309,32 @@
             });
         }
 
-        // ENREGISTRER UN ÉVÉNEMENT AVEC TOUTES LES NOUVELLES OPTIONS PREMIUM
+        // ENREGISTRER UN ÉVÉNEMENT AVEC OPTIMISATIONS ET SÉCURISATION DU SLUG
         document.getElementById('event-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const submitBtn = document.getElementById('btn-submit-event');
             submitBtn.innerText = "Création de l'invitation...";
             submitBtn.disabled = true;
 
-            const titre = document.getElementById('event-title-input').value;
+            const titre = document.getElementById('event-title-input').value.trim();
             const type_evenement = document.getElementById('event-type-input').value;
             const date_heure = document.getElementById('event-date-input').value;
-            const slug = document.getElementById('event-slug-input').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-');
-            const lieu = document.getElementById('event-location-input').value;
-            const lien_maps = document.getElementById('event-maps-input').value;
+            const lieu = document.getElementById('event-location-input').value.trim();
+            const lien_maps = document.getElementById('event-maps-input').value.trim();
             const couleur_theme = document.getElementById('event-theme-input').value;
-            
-            // Extraction des nouvelles valeurs
             const hote = document.getElementById('event-host-input').value.trim();
             const phrase_invitation = document.getElementById('event-phrase-input').value.trim();
             
+            // 1. Gestion Premium du Slug (Nettoyage + Suffixe Unique Aléatoire à 4 caractères)
+            let rawSlug = document.getElementById('event-slug-input').value.trim().toLowerCase();
+            rawSlug = rawSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); // Supprime les accents
+            rawSlug = rawSlug.replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, ''); // Nettoie la chaîne
+            
+            if (!rawSlug) rawSlug = "evenement";
+            const uniqueId = Math.floor(1000 + Math.random() * 9000); // Génère 4 chiffres (ex: 4921)
+            const slug = `${rawSlug}-${uniqueId}`;
+
             const imageFile = document.getElementById('event-bg-file').files[0];
             let image_fond = null;
 
@@ -332,9 +349,8 @@
                     submitBtn.disabled = false;
                     return; 
                 }
-            }
 
-            if (imageFile) {
+                // Upload vers Supabase Storage
                 const fileExt = imageFile.name.split('.').pop();
                 const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
                 const filePath = `${currentUser.id}/${fileName}`;
@@ -351,6 +367,7 @@
                     return;
                 }
 
+                // Récupération de l'URL publique
                 const { data: publicUrlData } = supabaseClient
                     .storage
                     .from('fonds-invitations')
@@ -359,7 +376,7 @@
                 image_fond = publicUrlData.publicUrl;
             }
 
-            // AJOUT ET ENREGISTREMENT SYNC DANS LES COLONNES HOTE ET PHRASE_INVITATION
+            // Insertion synchronisée en base de données
             const { error } = await supabaseClient
                 .from('evenements')
                 .insert([{
@@ -368,18 +385,18 @@
                     type_evenement, 
                     date_heure, 
                     lieu, 
-                    lien_maps, 
+                    lien_maps: lien_maps || null, 
                     couleur_theme, 
                     image_fond,
                     slug,
-                    hote: hote || null, // Permet le repli automatique sur la carte si vide
+                    hote: hote || null,
                     phrase_invitation: phrase_invitation || null
                 }]);
 
             if (error) {
                 alert("Erreur lors de la création en base de données : " + error.message);
             } else {
-                alert("Félicitations ! Votre invitation premium a été configurée avec succès.");
+                alert(`🎉 Félicitations ! Votre invitation a été configurée.\nLien généré : /index.html?e=${slug}`);
                 document.getElementById('event-form').reset();
                 loadUserEvents();
             }
