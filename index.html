@@ -3,274 +3,510 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Votre Invitation Premium</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Votre Invitation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Animation subtile pour inciter au défilement */
-        @keyframes bounce-slow {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold:        #c9a96e;
+            --gold-light:  #e0c898;
+            --gold-dim:    rgba(201,169,110,0.15);
+            --gold-border: rgba(201,169,110,0.35);
+
+            /* Brun tabac moyen — lisible, chaud, apaisant */
+            --page-bg:     #2e2820;
+            --card-bg:     #3a3228;
+            --card-border: rgba(201,169,110,0.22);
+
+            --text:        #f5eddf;
+            --text-mid:    #d4c4a8;
+            --text-muted:  #a89070;
+            --text-dim:    #7a6a52;
         }
-        .animate-bounce-slow {
-            animation: bounce-slow 2s infinite;
+
+        html { scroll-behavior: smooth; }
+        body {
+            background: var(--page-bg);
+            color: var(--text);
+            font-family: 'Jost', sans-serif;
+            font-weight: 300;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* =============================================
+           HERO — image entière + CTA en dessous
+        ============================================= */
+        #hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: var(--page-bg);
+        }
+
+        /* Conteneur image : respecte les proportions naturelles */
+        #hero-img-wrap {
+            width: 100%;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 0;
+        }
+        #hero-photo-el {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 6px 6px 0 0;
+            object-fit: contain;
+            box-shadow: 0 8px 48px rgba(0,0,0,0.45);
+        }
+
+        /* Panneau décoratif sans photo */
+        #hero-no-photo {
+            width: 100%;
+            max-width: 860px;
+            margin: 2rem auto 0;
+            padding: 0 1.5rem;
+            display: none;
+        }
+        .no-photo-panel {
+            width: 100%;
+            padding: 5rem 2rem;
+            background:
+                radial-gradient(ellipse 70% 60% at 30% 40%, rgba(201,169,110,0.2) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 50% at 75% 70%, rgba(201,169,110,0.1) 0%, transparent 60%),
+                linear-gradient(135deg, #2e2820 0%, #3a3228 50%, #322c22 100%);
+            border-radius: 6px 6px 0 0;
+            box-shadow: 0 8px 48px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1rem; text-align: center; position: relative; overflow: hidden;
+        }
+        .no-photo-panel::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                repeating-linear-gradient(45deg, rgba(201,169,110,0.06) 0px, rgba(201,169,110,0.06) 1px, transparent 1px, transparent 28px),
+                repeating-linear-gradient(-45deg, rgba(201,169,110,0.06) 0px, rgba(201,169,110,0.06) 1px, transparent 1px, transparent 28px);
+            pointer-events: none;
+        }
+        .no-photo-eyebrow { font-size: 9px; font-weight: 600; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); position: relative; }
+        #no-photo-title {
+            font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 7vw, 4rem);
+            font-weight: 300; font-style: italic; color: var(--text);
+            line-height: 1.15; position: relative;
+        }
+        #no-photo-sub { font-size: 13px; color: var(--text-muted); letter-spacing: 0.08em; position: relative; }
+
+        .ornament { display: flex; align-items: center; gap: 12px; position: relative; }
+        .orn-line { width: 44px; height: 1px; background: var(--gold-border); }
+        .orn-dia  { width: 6px; height: 6px; border: 1.5px solid var(--gold); transform: rotate(45deg); flex-shrink: 0; }
+
+        /* Bande dorée sous l'image */
+        #hero-gold-bar { width: 100%; max-width: 860px; margin: 0 auto; padding: 0 1.5rem; }
+        .gold-bar-inner { height: 3px; background: linear-gradient(90deg, transparent 0%, var(--gold) 30%, var(--gold-light) 50%, var(--gold) 70%, transparent 100%); }
+
+        /* CTA scroll — EN DESSOUS de l'image */
+        #scroll-cta {
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            padding: 1.6rem 1rem 2.2rem;
+            cursor: pointer; user-select: none; background: var(--page-bg);
+        }
+        #scroll-cta .cta-text { font-size: 9px; font-weight: 600; letter-spacing: 0.38em; text-transform: uppercase; color: var(--gold); }
+        #scroll-cta .cta-arrow {
+            width: 32px; height: 32px;
+            border: 1px solid var(--gold-border); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold); font-size: 12px;
+            animation: arrowBounce 2.2s ease-in-out infinite;
+        }
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateY(0); opacity: 0.6; }
+            50%       { transform: translateY(5px); opacity: 1; }
+        }
+
+        /* =============================================
+           SECTION FORMULAIRE
+        ============================================= */
+        #form-section {
+            position: relative; overflow: hidden;
+            padding: 4rem 1.5rem 5rem;
+        }
+
+        /* Fond flouté (photo) derrière la carte */
+        #form-bg {
+            position: absolute; inset: 0;
+            background-size: cover; background-position: center;
+            filter: blur(28px) brightness(0.3) saturate(0.5);
+            transform: scale(1.1);
+            opacity: 0; transition: opacity 0.8s ease;
+            pointer-events: none; z-index: 0;
+        }
+        #form-bg.has-photo { opacity: 1; }
+
+        /* Fond dégradé quand pas de photo */
+        #form-section::before {
+            content: '';
+            position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 20% 30%, rgba(201,169,110,0.1) 0%, transparent 65%),
+                radial-gradient(ellipse 60% 70% at 80% 80%, rgba(201,169,110,0.06) 0%, transparent 60%),
+                linear-gradient(160deg, #2e2820 0%, #322c22 40%, #2a2418 100%);
+            z-index: 0;
+        }
+
+        /* =============================================
+           LA CARTE D'INVITATION
+        ============================================= */
+        .invitation-card {
+            position: relative; z-index: 1;
+            width: 100%; max-width: 600px; margin: 0 auto;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 6px; overflow: hidden;
+            box-shadow:
+                0 2px 0 rgba(201,169,110,0.2),
+                0 32px 80px rgba(0,0,0,0.5),
+                0 4px 16px rgba(0,0,0,0.3);
+            animation: cardReveal 0.75s ease both;
+        }
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-gold-top { height: 4px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent); }
+
+        /* En-tête */
+        .card-header {
+            text-align: center; padding: 2.8rem 2.5rem 2.2rem;
+            border-bottom: 1px solid var(--card-border);
+            background: radial-gradient(ellipse 80% 60% at 50% 100%, rgba(201,169,110,0.06) 0%, transparent 70%);
+        }
+        .card-ornament { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 1.4rem; }
+        .card-orn-line { width: 36px; height: 1px; background: var(--gold-border); }
+        .card-orn-dia  { width: 5px; height: 5px; border: 1.5px solid var(--gold); transform: rotate(45deg); }
+
+        #badge-type {
+            display: inline-block; font-size: 8px; font-weight: 600;
+            letter-spacing: 0.4em; text-transform: uppercase;
+            color: #1e1a14; background: var(--gold);
+            padding: 5px 18px; border-radius: 1px; margin-bottom: 1.6rem;
+        }
+        #card-host   { font-family: 'Jost', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.5rem; }
+        #card-phrase { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-style: italic; font-weight: 300; color: var(--text-muted); margin-bottom: 0.9rem; line-height: 1.5; }
+        #card-title  { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem, 6vw, 3rem); font-weight: 600; line-height: 1.1; color: var(--text); }
+
+        /* Détails */
+        .card-details { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--card-border); }
+        .detail-block { display: flex; align-items: flex-start; gap: 12px; padding: 1.4rem 1.6rem; }
+        .detail-block:first-child { border-right: 1px solid var(--card-border); }
+        .detail-icon {
+            width: 34px; height: 34px;
+            border: 1px solid var(--gold-border); border-radius: 3px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold); font-size: 13px; flex-shrink: 0; margin-top: 3px;
+            background: rgba(201,169,110,0.08);
+        }
+        .detail-label { font-size: 8px; font-weight: 600; letter-spacing: 0.32em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
+        .detail-value { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 400; color: var(--text); line-height: 1.4; }
+
+        /* Maps */
+        #wrapper-maps { border-bottom: 1px solid var(--card-border); }
+        #wrapper-maps.hidden { display: none; }
+        #btn-maps {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 1rem;
+            background: rgba(201,169,110,0.06); color: var(--gold);
+            font-family: 'Jost', sans-serif; font-size: 9px; font-weight: 600;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            text-decoration: none; transition: background 0.2s;
+        }
+        #btn-maps:hover { background: rgba(201,169,110,0.12); }
+
+        /* RSVP */
+        .rsvp-section { padding: 2.4rem 2.5rem 2.8rem; }
+        .rsvp-header  { display: flex; align-items: center; gap: 14px; margin-bottom: 2rem; }
+        .rsvp-h-line  { flex: 1; height: 1px; background: var(--card-border); }
+        .rsvp-h-text  { font-size: 8px; font-weight: 600; letter-spacing: 0.38em; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+
+        .f-group { margin-bottom: 1.3rem; }
+        .f-label {
+            display: block; font-size: 8px; font-weight: 600;
+            letter-spacing: 0.3em; text-transform: uppercase;
+            color: var(--text-dim); margin-bottom: 7px;
+        }
+        .f-control {
+            width: 100%;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid var(--card-border);
+            border-radius: 3px; padding: 0.75rem 1rem;
+            font-family: 'Jost', sans-serif; font-size: 14px; font-weight: 300;
+            color: var(--text); outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            -webkit-appearance: none; appearance: none;
+        }
+        .f-control:focus { border-color: var(--gold); background: rgba(201,169,110,0.06); }
+        .f-control::placeholder { color: var(--text-dim); }
+        select.f-control {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a96e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+        }
+        select.f-control option { background: #3a3228; color: var(--text); }
+        textarea.f-control { resize: none; }
+        .f-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        #wrapper-guests { transition: opacity 0.2s; }
+
+        #btn-submit-rsvp {
+            width: 100%; padding: 1.05rem;
+            background: var(--gold); border: none; border-radius: 3px;
+            color: #1e1a14;
+            font-family: 'Jost', sans-serif; font-size: 9px; font-weight: 600;
+            letter-spacing: 0.42em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.25s; margin-top: 0.3rem;
+        }
+        #btn-submit-rsvp:hover   { background: var(--gold-light); }
+        #btn-submit-rsvp:active  { transform: scale(0.99); }
+        #btn-submit-rsvp:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Pied de carte */
+        .card-footer-strip {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 1rem; border-top: 1px solid var(--card-border);
+            background: rgba(0,0,0,0.15);
+        }
+        .card-footer-strip span { font-size: 8px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--text-dim); }
+        .footer-dia { width: 4px; height: 4px; border: 1px solid var(--gold-border); transform: rotate(45deg); }
+
+        .card-gold-bottom { height: 4px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent); }
+
+        footer { text-align: center; padding: 2rem; font-size: 10px; letter-spacing: 0.18em; color: var(--text-dim); border-top: 1px solid var(--card-border); background: var(--page-bg); }
+        footer span { color: var(--text-muted); }
+
+        @media (max-width: 520px) {
+            .card-details { grid-template-columns: 1fr; }
+            .detail-block:first-child { border-right: none; border-bottom: 1px solid var(--card-border); }
+            .card-header, .rsvp-section { padding-left: 1.4rem; padding-right: 1.4rem; }
+            .f-row { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body class="bg-gray-950 text-white font-sans antialiased relative min-h-screen">
+<body>
 
-    <!-- FOND DE BASE POUR LES CÔTÉS SUR ÉCRAN LARGE -->
-    <div class="fixed inset-0 bg-gray-950 z-0"></div>
+<!-- ===== SECTION HÉRO ===== -->
+<section id="hero">
+    <div id="hero-img-wrap">
+        <img id="hero-photo-el" src="" alt="Photo de l'événement" style="display:none;">
+    </div>
 
-    <!-- ÉLÉMENT 1 : L'IMAGE DE FOND FIXE (Centrée et bridée sur PC, plein écran sur Mobile) -->
-    <div id="bg-image-container" class="fixed inset-y-0 inset-x-0 md:max-w-xl md:mx-auto bg-cover bg-center bg-no-repeat z-10 transition-all duration-500 shadow-[0_0_60px_rgba(0,0,0,0.8)]"></div>
-
-    <!-- SÉLECTION DU COUVERT DE FLOU (Suit exactement la même zone centrée que l'image) -->
-    <div id="blur-overlay" class="fixed inset-y-0 inset-x-0 md:max-w-xl md:mx-auto z-20 bg-black/30 backdrop-blur-0 transition-all duration-700 pointer-events-none"></div>
-
-    <!-- ÉLÉMENT 2 : PREMIÈRE SECTION (HERO) - Centrée et alignée sur le conteneur d'image -->
-    <div class="relative z-30 min-h-screen w-full max-w-xl mx-auto flex flex-col justify-end items-center pb-12 px-6 text-center bg-gradient-to-t from-black/95 via-black/30 to-black/40">
-        <div class="space-y-4 max-w-md mx-auto mb-8">
-            <h1 id="hero-title" class="text-3xl md:text-4xl font-black tracking-tight text-white drop-shadow-lg">Vous êtes invité</h1>
-            <p id="hero-subtitle" class="text-sm md:text-base text-gray-200 font-medium drop-shadow-md">Découvrez les détails de l'événement ci-dessous</p>
-        </div>
-        
-        <!-- Message d'incitation au scroll -->
-        <div class="animate-bounce-slow flex flex-col items-center gap-2 cursor-pointer" onclick="scrollToCard()">
-            <span class="text-xs font-bold uppercase tracking-widest text-indigo-400 drop-shadow">Faire défiler pour voir votre carte d'invitation</span>
-            <i class="fa-solid fa-chevron-down text-lg text-indigo-400"></i>
+    <div id="hero-no-photo">
+        <div class="no-photo-panel">
+            <div class="ornament"><div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line"></div></div>
+            <p class="no-photo-eyebrow">Invitation exclusive</p>
+            <h1 id="no-photo-title">Vous êtes invité</h1>
+            <p id="no-photo-sub">Découvrez les détails de cet événement</p>
+            <div class="ornament"><div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line"></div></div>
         </div>
     </div>
 
-    <!-- ÉLÉMENT 3 : CONTENU DE LA CARTE D'INVITATION (S'affiche en défilant) -->
-    <div id="main-content" class="relative z-30 w-full max-w-xl mx-auto px-4 pb-24">
-        
-        <!-- La Carte d'invitation Premium -->
-        <div class="bg-gray-900/90 border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6 backdrop-blur-md">
-            
-            <!-- Badge Type Événement -->
-            <div class="text-center">
-                <span id="badge-type" class="text-[10px] bg-indigo-600 px-3 py-1.5 rounded-full font-black uppercase tracking-widest text-white shadow-lg">Événement</span>
+    <div id="hero-gold-bar"><div class="gold-bar-inner"></div></div>
+
+    <div id="scroll-cta" onclick="scrollToCard()">
+        <span class="cta-text">Ouvrir votre invitation</span>
+        <div class="cta-arrow"><i class="fa-solid fa-chevron-down"></i></div>
+    </div>
+</section>
+
+<!-- ===== SECTION CARTE ===== -->
+<section id="form-section">
+    <div id="form-bg"></div>
+
+    <div class="invitation-card" id="main-content">
+        <div class="card-gold-top"></div>
+
+        <div class="card-header">
+            <div class="card-ornament">
+                <div class="card-orn-line"></div><div class="card-orn-dia"></div><div class="card-orn-line"></div>
             </div>
+            <span id="badge-type">Événement</span>
+            <p id="card-host">Invitation Spéciale</p>
+            <p id="card-phrase">vous prie d'honorer de votre présence</p>
+            <h2 id="card-title">Chargement…</h2>
+        </div>
 
-            <!-- En-tête de l'invitation -->
-            <div class="text-center space-y-2">
-                <p id="card-host" class="text-xs uppercase font-bold tracking-widest text-indigo-400">L'Hôte</p>
-                <p id="card-phrase" class="text-sm italic text-gray-400">vous prie d'honorer de votre présence</p>
-                <h2 id="card-title" class="text-2xl md:text-3xl font-black tracking-tight text-white pt-2">Chargement...</h2>
-            </div>
-
-            <hr class="border-white/5">
-
-            <!-- Infos logistiques (Date, Lieu) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-black/30 border border-white/5 p-4 rounded-2xl flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center text-indigo-400">
-                        <i class="fa-solid fa-calendar-days text-lg"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Date & Heure</p>
-                        <p id="card-date" class="text-xs font-bold text-gray-200">...</p>
-                    </div>
-                </div>
-
-                <div class="bg-black/30 border border-white/5 p-4 rounded-2xl flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-indigo-600/20 flex items-center justify-center text-indigo-400">
-                        <i class="fa-solid fa-location-dot text-lg"></i>
-                    </div>
-                    <div>
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Lieu</p>
-                        <p id="card-location" class="text-xs font-bold text-gray-200 truncate max-w-[160px]">...</p>
-                    </div>
+        <div class="card-details">
+            <div class="detail-block">
+                <div class="detail-icon"><i class="fa-solid fa-calendar-days"></i></div>
+                <div>
+                    <p class="detail-label">Date &amp; Heure</p>
+                    <p class="detail-value" id="card-date">—</p>
                 </div>
             </div>
+            <div class="detail-block">
+                <div class="detail-icon"><i class="fa-solid fa-location-dot"></i></div>
+                <div>
+                    <p class="detail-label">Lieu</p>
+                    <p class="detail-value" id="card-location">—</p>
+                </div>
+            </div>
+        </div>
 
-            <!-- Bouton GPS itinéraire -->
-            <div id="wrapper-maps" class="hidden">
-                <a id="btn-maps" href="#" target="_blank" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-bold py-3 rounded-xl transition text-xs uppercase tracking-wider flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-map-location-dot text-indigo-400"></i> Voir l'itinéraire Google Maps
-                </a>
+        <div id="wrapper-maps" class="hidden">
+            <a id="btn-maps" href="#" target="_blank">
+                <i class="fa-solid fa-map-location-dot"></i> Voir l'itinéraire Google Maps
+            </a>
+        </div>
+
+        <div class="rsvp-section">
+            <div class="rsvp-header">
+                <div class="rsvp-h-line"></div>
+                <span class="rsvp-h-text"><i class="fa-solid fa-envelope-open-text" style="margin-right:7px;"></i>Confirmez votre présence</span>
+                <div class="rsvp-h-line"></div>
             </div>
 
-            <!-- FORMULAIRE RSVP INCORPORÉ -->
-            <div class="bg-black/40 border border-white/5 p-5 rounded-2xl space-y-4">
-                <h3 class="text-sm font-black uppercase tracking-wider text-indigo-400 text-center">
-                    <i class="fa-solid fa-envelope-open-text mr-1"></i> Confirmez votre présence
-                </h3>
-                
-                <form id="rsvp-form" class="space-y-3">
-                    <div>
-                        <label class="block text-[10px] font-semibold uppercase text-gray-400 mb-1">Votre nom complet</label>
-                        <input type="text" id="rsvp-name" required placeholder="Ex: M. & Mme KPADONOU" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[10px] font-semibold uppercase text-gray-400 mb-1">Serez-vous présent ?</label>
-                        <select id="rsvp-presence" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                            <option value="true">Oui, j'assisterai avec plaisir</option>
-                            <option value="false"> Non, je serai absent(e)</option>
+            <form id="rsvp-form">
+                <div class="f-group">
+                    <label class="f-label" for="rsvp-name">Votre nom complet</label>
+                    <input type="text" id="rsvp-name" required placeholder="M. &amp; Mme KPADONOU" class="f-control">
+                </div>
+                <div class="f-row">
+                    <div class="f-group">
+                        <label class="f-label" for="rsvp-presence">Serez-vous présent ?</label>
+                        <select id="rsvp-presence" class="f-control">
+                            <option value="true">Oui, avec plaisir</option>
+                            <option value="false">Non, je serai absent(e)</option>
                         </select>
                     </div>
-
-                    <div id="wrapper-guests">
-                        <label class="block text-[10px] font-semibold uppercase text-gray-400 mb-1">Nombre d'accompagnateurs</label>
-                        <input type="number" id="rsvp-guests" min="0" value="0" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <div class="f-group" id="wrapper-guests">
+                        <label class="f-label" for="rsvp-guests">Accompagnateurs</label>
+                        <input type="number" id="rsvp-guests" min="0" value="0" class="f-control">
                     </div>
-
-                    <div>
-                        <label class="block text-[10px] font-semibold uppercase text-gray-400 mb-1">Un petit message ou commentaire ? (Optionnel)</label>
-                        <textarea id="rsvp-comment" rows="2" placeholder="Ex: Félicitations ... !" class="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"></textarea>
-                    </div>
-
-                    <button type="submit" id="btn-submit-rsvp" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2.5 rounded-xl transition text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/10 cursor-pointer">
-                        Envoyer ma réponse
-                    </button>
-                </form>
-            </div>
-
+                </div>
+                <div class="f-group">
+                    <label class="f-label" for="rsvp-comment">Message (optionnel)</label>
+                    <textarea id="rsvp-comment" rows="3" placeholder="Félicitations, avec joie…" class="f-control"></textarea>
+                </div>
+                <button type="submit" id="btn-submit-rsvp">Envoyer ma réponse</button>
+            </form>
         </div>
+
+        <div class="card-footer-strip">
+            <div class="footer-dia"></div>
+            <span>PrestigeInvites</span>
+            <div class="footer-dia"></div>
+        </div>
+        <div class="card-gold-bottom"></div>
     </div>
-    <footer class="w-full text-center py-8 text-gray-600 text-xs tracking-wide border-t border-white/5 mt-12">
-        <p>Développé par <span class="text-gray-400 font-semibold">Alouphaa</span> &copy; 2026</p>
-    </footer>
-    <!-- LOGIQUE LOGICIELLE & SUPABASE -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = "https://yukywftxppvgywpsapmh.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1a3l3ZnR4cHB2Z3l3cHNhcG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDUyMTcsImV4cCI6MjA5NTk4MTIxN30.d-jB_JTMnHRyZxrZLD3eEgppt6P4cbsk0qZ7VKSMdtQ";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</section>
 
-        let eventId = null;
+<footer><p>Développé par <span>Alouphaa</span> &copy; 2026</p></footer>
 
-        // ÉCOUTEUR DE SCROLL : Rend l'arrière-plan flou uniquement sur la zone de l'image
-        window.addEventListener('scroll', () => {
-            const overlay = document.getElementById('blur-overlay');
-            const scrolled = window.scrollY;
-            const screenHeight = window.innerHeight;
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL      = "https://yukywftxppvgywpsapmh.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1a3l3ZnR4cHB2Z3l3cHNhcG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDUyMTcsImV4cCI6MjA5NTk4MTIxN30.d-jB_JTMnHRyZxrZLD3eEgppt6P4cbsk0qZ7VKSMdtQ";
+    const supabaseClient    = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // Calcul du ratio de scroll (Maximum appliqué à la moitié de l'écran)
-            const ratio = Math.min(scrolled / (screenHeight * 0.4), 1);
-            
-            if (ratio > 0.1) {
-                overlay.style.backdropFilter = `blur(${ratio * 14}px)`; // Flou progressif jusqu'à 14px
-                overlay.style.backgroundColor = `rgba(0, 0, 0, ${ratio * 0.65})`; // Assombrissement ciblé
-            } else {
-                overlay.style.backdropFilter = 'blur(0px)';
-                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
-            }
+    let eventId = null;
+
+    function scrollToCard() {
+        document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function formatFrenchDate(dateString) {
+        if (!dateString) return "—";
+        return new Date(dateString).toLocaleDateString('fr-FR', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
         });
+    }
 
-        function scrollToCard() {
-            document.getElementById('main-content').scrollIntoView({ behavior: 'smooth' });
+    async function initInvitation() {
+        const slug = new URLSearchParams(window.location.search).get('e');
+        if (!slug) {
+            showNoPhoto("Invitation introuvable", "Lien invalide");
+            document.getElementById('card-title').textContent = "Invitation introuvable";
+            return;
         }
 
-        function formatFrenchDate(dateString) {
-            if (!dateString) return "-";
-            return new Date(dateString).toLocaleDateString('fr-FR', {
-                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
-            });
+        const { data: event, error } = await supabaseClient
+            .from('evenements').select('*').eq('slug', slug).single();
+
+        if (error || !event) {
+            showNoPhoto("Événement non trouvé", "Ce lien ne correspond à aucun événement actif.");
+            document.getElementById('card-title').textContent = "Événement non répertorié";
+            return;
         }
 
-        // CHARGEMENT DE L'INVITATION DEPUIS L'URL SLUG
-        async function initInvitation() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const slug = urlParams.get('e');
+        eventId = event.id;
 
-            if (!slug) {
-                document.getElementById('card-title').innerText = "Invitation introuvable ❌";
-                return;
-            }
-
-            const { data: event, error } = await supabaseClient
-                .from('evenements')
-                .select('*')
-                .eq('slug', slug)
-                .single();
-
-            if (error || !event) {
-                document.getElementById('card-title').innerText = "Événement non répertorié 🕊️";
-                return;
-            }
-
-            eventId = event.id;
-
-            // Attribution de l'image de fond
-            if (event.image_fond) {
-                document.getElementById('bg-image-container').style.backgroundImage = `url('${event.image_fond}')`;
-            } else {
-                document.getElementById('bg-image-container').style.backgroundColor = "#0b0f19";
-            }
-
-            // Personnalisation des éléments textuels
-            document.getElementById('hero-title').innerText = event.titre;
-            document.getElementById('card-title').innerText = event.titre;
-            document.getElementById('card-date').innerText = formatFrenchDate(event.date_heure);
-            document.getElementById('card-location').innerText = event.lieu;
-            
-            // Type d'événement & couleur thématique
-            const badge = document.getElementById('badge-type');
-            badge.innerText = event.type_evenement;
-            if (event.couleur_theme) {
-                badge.style.backgroundColor = event.couleur_theme;
-                document.getElementById('btn-submit-rsvp').style.backgroundColor = event.couleur_theme;
-            }
-
-            // Gestion de l'affichage de l'hôte et de la phrase d'invitation
-            document.getElementById('card-host').innerText = event.hote ? event.hote : "Invitation Spéciale";
-            document.getElementById('card-phrase').innerText = event.phrase_invitation ? event.phrase_invitation : "vous invite chaleureusement à prendre part à cet événement :";
-
-            // Gestion du lien de cartographie GPS
-            if (event.lien_maps) {
-                const mapBtn = document.getElementById('btn-maps');
-                mapBtn.href = event.lien_maps;
-                document.getElementById('wrapper-maps').classList.remove('hidden');
-            }
+        if (event.image_fond) {
+            const img = document.getElementById('hero-photo-el');
+            img.src = event.image_fond;
+            img.style.display = 'block';
+            const formBg = document.getElementById('form-bg');
+            formBg.style.backgroundImage = `url('${event.image_fond}')`;
+            formBg.classList.add('has-photo');
+        } else {
+            showNoPhoto(event.titre, event.phrase_invitation || '');
         }
 
-        // Toggle visuel du nombre d'accompagnateurs si absent
-        document.getElementById('rsvp-presence').addEventListener('change', (e) => {
-            const guestWrapper = document.getElementById('wrapper-guests');
-            if (e.target.value === "false") {
-                guestWrapper.classList.add('hidden');
-                document.getElementById('rsvp-guests').value = 0;
-            } else {
-                guestWrapper.classList.remove('hidden');
-            }
-        });
+        document.getElementById('no-photo-title').textContent = event.titre;
+        document.getElementById('card-title').textContent     = event.titre;
+        document.getElementById('card-date').textContent      = formatFrenchDate(event.date_heure);
+        document.getElementById('card-location').textContent  = event.lieu;
+        document.getElementById('card-host').textContent      = event.hote || 'Invitation Spéciale';
+        document.getElementById('card-phrase').textContent    = event.phrase_invitation || 'vous invite chaleureusement à prendre part à cet événement :';
+        document.getElementById('badge-type').textContent     = event.type_evenement;
 
-        // ENREGISTREMENT DES RÉPONSES RSVP
-        document.getElementById('rsvp-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('btn-submit-rsvp');
-            btn.disabled = true;
-            btn.innerText = "Transmission en cours...";
+        if (event.lien_maps) {
+            document.getElementById('btn-maps').href = event.lien_maps;
+            document.getElementById('wrapper-maps').classList.remove('hidden');
+        }
+    }
 
-            const nom_invite = document.getElementById('rsvp-name').value.trim();
-            const presence = document.getElementById('rsvp-presence').value === "true";
-            const nombre_accompagnateurs = parseInt(document.getElementById('rsvp-guests').value) || 0;
-            const commentaire = document.getElementById('rsvp-comment').value.trim();
+    function showNoPhoto(title, sub) {
+        document.getElementById('hero-img-wrap').style.display = 'none';
+        document.getElementById('hero-gold-bar').style.display = 'none';
+        document.getElementById('hero-no-photo').style.display = 'block';
+        document.getElementById('no-photo-title').textContent  = title;
+        document.getElementById('no-photo-sub').textContent    = sub || '';
+    }
 
-            const { error } = await supabaseClient
-                .from('rsvp')
-                .insert([{
-                    evenement_id: eventId,
-                    nom_invite,
-                    presence,
-                    nombre_accompagnateurs,
-                    commentaire: commentaire || null
-                }]);
+    document.getElementById('rsvp-presence').addEventListener('change', (e) => {
+        const w = document.getElementById('wrapper-guests');
+        if (e.target.value === "false") {
+            w.style.opacity = '0.3'; w.style.pointerEvents = 'none';
+            document.getElementById('rsvp-guests').value = 0;
+        } else {
+            w.style.opacity = '1'; w.style.pointerEvents = '';
+        }
+    });
 
-            if (error) {
-                alert("Une erreur est survenue lors de l'envoi : " + error.message);
-            } else {
-                alert("✨ Merci pour votre réponse ! Elle a bien été transmise à l'organisateur.");
-                document.getElementById('rsvp-form').reset();
-            }
-            btn.disabled = false;
-            btn.innerText = "Envoyer ma réponse";
-        });
+    document.getElementById('rsvp-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-rsvp');
+        btn.disabled = true; btn.textContent = "Transmission…";
 
-        initInvitation();
-    </script>
+        const { error } = await supabaseClient.from('rsvp').insert([{
+            evenement_id:          eventId,
+            nom_invite:            document.getElementById('rsvp-name').value.trim(),
+            presence:              document.getElementById('rsvp-presence').value === "true",
+            nombre_accompagnateurs:parseInt(document.getElementById('rsvp-guests').value) || 0,
+            commentaire:           document.getElementById('rsvp-comment').value.trim() || null
+        }]);
+
+        if (error) alert("Erreur lors de l'envoi : " + error.message);
+        else {
+            alert("✨ Merci ! Votre réponse a bien été transmise à l'organisateur.");
+            document.getElementById('rsvp-form').reset();
+        }
+        btn.disabled = false; btn.textContent = "Envoyer ma réponse";
+    });
+
+    initInvitation();
+</script>
 </body>
 </html>
