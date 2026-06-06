@@ -3,557 +3,810 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mon Espace Organisateur - Premium</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Mon Espace Organisateur — PrestigeInvites</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body class="bg-gray-950 text-white font-sans antialiased min-h-screen p-4 md:p-8">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <!-- FORMULAIRE D'AUTHENTIFICATION -->
-    <div id="auth-box" class="max-w-md mx-auto bg-gray-900 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6 mt-12">
-        <div class="text-center">
-            <h2 class="text-2xl font-black tracking-tight" id="auth-title">Connexion Organisateur</h2>
-            <p class="text-xs text-gray-400 mt-1">Gérez vos événements et suivez vos invités</p>
-        </div>
-        <form id="auth-form" class="space-y-4">
-            <div>
-                <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Adresse Email</label>
-                <input type="email" id="auth-email" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
-            </div>
-            <div>
-                <label class="block text-xs font-semibold uppercase text-gray-400 mb-1">Mot de passe</label>
-                <input type="password" id="auth-password" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 text-white">
-            </div>
-            <button type="submit" id="btn-auth" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-3 rounded-xl transition text-sm uppercase tracking-wider shadow-lg shadow-indigo-600/20 cursor-pointer">
-                Se connecter
-            </button>
-        </form>
-        <div class="text-center pt-2">
-            <button onclick="toggleAuthMode()" id="btn-toggle-mode" class="text-xs text-indigo-400 hover:underline cursor-pointer">
-                Pas encore de compte ? S'inscrire
-            </button>
+        :root {
+            --gold:        #c9a96e;
+            --gold-light:  #e0c898;
+            --gold-dim:    rgba(201,169,110,0.15);
+            --gold-border: rgba(201,169,110,0.35);
+
+            /* Palette : brun-tabac moyen — ni blanc ni noir */
+            --page-bg:   #2e2820;
+            --surface:   #3a3228;
+            --surface2:  #443c30;
+            --border:    rgba(201,169,110,0.2);
+            --border-soft: rgba(201,169,110,0.12);
+
+            --text:      #f5eddf;
+            --text-mid:  #d4c4a8;
+            --text-muted:#a89070;
+            --text-dim:  #7a6a52;
+
+            --danger:    #d47070;
+            --success:   #7ab88a;
+        }
+
+        body {
+            background: var(--page-bg);
+            color: var(--text);
+            font-family: 'Jost', sans-serif;
+            font-weight: 300;
+            min-height: 100vh;
+        }
+
+        .page-wrap { max-width: 1140px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+
+        /* ========== BRAND HEADER ========== */
+        .brand-header {
+            text-align: center;
+            padding: 2.8rem 0 2.2rem;
+            border-bottom: 1px solid var(--border-soft);
+            margin-bottom: 2rem;
+        }
+        .brand-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2rem; font-weight: 300; font-style: italic;
+            color: var(--text); letter-spacing: 0.04em;
+        }
+        .brand-logo span { color: var(--gold); }
+        .brand-tagline {
+            font-size: 9px; font-weight: 600; letter-spacing: 0.42em;
+            text-transform: uppercase; color: var(--text-dim); margin-top: 6px;
+        }
+        .brand-orn { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 1.2rem; }
+        .orn-line  { width: 48px; height: 1px; background: var(--gold-border); }
+        .orn-dia   { width: 5px; height: 5px; border: 1.5px solid var(--gold); transform: rotate(45deg); }
+
+        /* ========== FORM ELEMENTS ========== */
+        .f-group { margin-bottom: 1.2rem; }
+        .f-label {
+            display: block; font-size: 8px; font-weight: 600;
+            letter-spacing: 0.32em; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 7px;
+        }
+        .f-input {
+            width: 100%;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            padding: 0.78rem 1rem;
+            font-family: 'Jost', sans-serif;
+            font-size: 14px; font-weight: 300;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s, background 0.2s;
+            -webkit-appearance: none;
+        }
+        .f-input:focus { border-color: var(--gold); background: rgba(201,169,110,0.07); }
+        .f-input::placeholder { color: var(--text-dim); }
+        .f-input[type="color"]  { height: 42px; padding: 4px 6px; cursor: pointer; }
+        .f-input[type="file"]   { padding: 0.5rem 0.8rem; font-size: 12px; cursor: pointer; }
+        .f-hint { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+        .f-row  { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .btn-primary {
+            width: 100%; padding: 0.95rem;
+            background: var(--gold); border: none; border-radius: 3px;
+            color: #1e1a14;
+            font-family: 'Jost', sans-serif; font-size: 9px; font-weight: 600;
+            letter-spacing: 0.38em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.2s; margin-top: 0.4rem;
+        }
+        .btn-primary:hover { background: var(--gold-light); }
+        .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn-primary.edit-mode { background: #a07840; color: #fff; }
+        .btn-primary.edit-mode:hover { background: #b88a50; }
+
+        .btn-ghost {
+            width: 100%; padding: 0.78rem;
+            background: transparent; border: 1px solid var(--border); border-radius: 3px;
+            color: var(--text-muted);
+            font-family: 'Jost', sans-serif; font-size: 9px; font-weight: 500;
+            letter-spacing: 0.22em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.2s; margin-top: 0.4rem;
+        }
+        .btn-ghost:hover { background: var(--surface2); }
+
+        .btn-link {
+            background: none; border: none; cursor: pointer;
+            font-size: 11px; color: var(--gold); letter-spacing: 0.07em;
+            text-decoration: underline; text-underline-offset: 3px;
+            font-family: 'Jost', sans-serif;
+            display: block; text-align: center; margin-top: 1.2rem;
+            transition: opacity 0.2s;
+        }
+        .btn-link:hover { opacity: 0.7; }
+
+        /* ========== AUTH BOX ========== */
+        #auth-box {
+            max-width: 440px; margin: 2rem auto 0;
+            background: var(--surface);
+            border: 1px solid var(--gold-border);
+            border-radius: 6px; overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+        }
+        .auth-top-bar { height: 3px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent); }
+        .auth-inner { padding: 2.5rem; }
+        #auth-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.9rem; font-weight: 400; text-align: center; margin-bottom: 0.3rem;
+        }
+        .auth-sub { text-align: center; font-size: 12px; color: var(--text-muted); margin-bottom: 2rem; }
+
+        /* ========== DASHBOARD ========== */
+        #dashboard-box { display: none; }
+
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 5px; padding: 1rem 1.5rem; margin-bottom: 2rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+        }
+        .topbar-name  { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; color: var(--gold); }
+        .topbar-email { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .btn-logout {
+            background: rgba(212,112,112,0.1); border: 1px solid rgba(212,112,112,0.25);
+            border-radius: 3px; color: var(--danger);
+            font-family: 'Jost', sans-serif; font-size: 9px; font-weight: 500;
+            letter-spacing: 0.2em; text-transform: uppercase;
+            padding: 0.55rem 1rem; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-logout:hover { background: rgba(212,112,112,0.2); }
+
+        /* Grid desktop */
+        .dash-grid { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: start; }
+
+        /* ========== FORM CARD ========== */
+        .form-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 6px; overflow: hidden;
+            position: sticky; top: 1.5rem;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+        }
+        .form-top-bar { height: 3px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold-light), var(--gold), transparent); }
+        .form-card-head {
+            padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-soft);
+            background: var(--gold-dim);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .form-card-head h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.15rem; font-weight: 400; }
+        .form-card-head i  { color: var(--gold); font-size: 0.9rem; }
+        .form-card-body    { padding: 1.5rem; }
+        .form-sep          { height: 1px; background: var(--border-soft); margin: 1.2rem 0; }
+
+        /* ========== EVENTS LIST ========== */
+        .list-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 1.2rem; }
+        .list-head h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; }
+        .events-count { font-size: 10px; color: var(--text-muted); letter-spacing: 0.1em; }
+        #events-list { display: flex; flex-direction: column; gap: 1rem; }
+
+        /* ========== EVENT CARD ========== */
+        .ev-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 5px; overflow: hidden;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .ev-card:hover { border-color: var(--gold-border); box-shadow: 0 6px 24px rgba(0,0,0,0.3); }
+        .ev-card-body { padding: 1.2rem 1.4rem; display: flex; gap: 1rem; align-items: flex-start; }
+
+        .ev-type-badge {
+            display: inline-block; font-size: 7px; font-weight: 600;
+            letter-spacing: 0.32em; text-transform: uppercase;
+            color: #1e1a14; background: var(--gold);
+            padding: 3px 10px; border-radius: 1px; margin-bottom: 6px;
+        }
+        .ev-info  { flex: 1; min-width: 0; }
+        .ev-title {
+            font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 400;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px;
+        }
+        .ev-meta  { font-size: 11px; color: var(--text-muted); display: flex; flex-direction: column; gap: 3px; }
+        .ev-meta span { display: flex; align-items: center; gap: 7px; }
+        .ev-meta i { color: var(--gold); font-size: 10px; width: 10px; flex-shrink: 0; }
+
+        .ev-stats { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; flex-shrink: 0; align-self: center; }
+        .stat-b   { text-align: center; padding: 0.65rem 1rem; border-right: 1px solid var(--border); }
+        .stat-b:last-child { border-right: none; }
+        .stat-n   { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; line-height: 1; display: block; }
+        .stat-n.g { color: var(--success); }
+        .stat-n.r { color: var(--danger); }
+        .stat-n.o { color: var(--gold); }
+        .stat-l   { font-size: 7px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); margin-top: 3px; display: block; }
+
+        .ev-actions {
+            border-top: 1px solid var(--border-soft); padding: 0.75rem 1.4rem;
+            display: flex; align-items: center; gap: 7px; flex-wrap: wrap;
+            background: rgba(0,0,0,0.1);
+        }
+        .slug-chip {
+            font-size: 10px; font-family: monospace; color: var(--text-dim);
+            background: var(--surface2); border: 1px solid var(--border-soft);
+            padding: 3px 8px; border-radius: 2px;
+            flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .act-btn {
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+            padding: 0.45rem 0.85rem; border-radius: 2px;
+            border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+            font-family: 'Jost', sans-serif; font-size: 9px; font-weight: 500;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.18s; text-decoration: none; white-space: nowrap;
+        }
+        .act-btn:hover          { background: var(--surface2); color: var(--text); }
+        .act-btn.gold           { border-color: var(--gold-border); color: var(--gold); }
+        .act-btn.gold:hover     { background: var(--gold-dim); }
+        .act-btn.amber          { border-color: rgba(192,140,60,0.35); color: #c8a060; }
+        .act-btn.amber:hover    { background: rgba(192,140,60,0.12); }
+        .act-btn.red            { border-color: rgba(212,112,112,0.3); color: var(--danger); }
+        .act-btn.red:hover      { background: rgba(212,112,112,0.1); }
+
+        /* Tiroir RSVP */
+        .rsvp-drawer        { display: none; }
+        .rsvp-drawer.open   { display: block; }
+        .rsvp-inner         { border-top: 1px solid var(--border-soft); padding: 1.2rem 1.4rem; background: rgba(0,0,0,0.15); }
+        .rsvp-inner h5      { font-size: 8px; font-weight: 600; letter-spacing: 0.32em; text-transform: uppercase; color: var(--gold); margin-bottom: 1rem; }
+        .rsvp-tbl           { width: 100%; border-collapse: collapse; }
+        .rsvp-tbl th        { font-size: 7px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-dim); text-align: left; padding: 0 0 0.7rem; border-bottom: 1px solid var(--border); }
+        .rsvp-tbl td        { font-size: 12px; color: var(--text-mid); padding: 0.55rem 0; border-bottom: 1px solid var(--border-soft); vertical-align: middle; }
+        .rsvp-pill          { display: inline-block; font-size: 7px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; padding: 2px 8px; border-radius: 1px; }
+        .rsvp-pill.p        { background: rgba(122,184,138,0.15); color: var(--success); border: 1px solid rgba(122,184,138,0.3); }
+        .rsvp-pill.a        { background: rgba(212,112,112,0.12); color: var(--danger); border: 1px solid rgba(212,112,112,0.25); }
+
+        /* Empty state */
+        .empty-state        { text-align: center; padding: 3.5rem 1rem; background: var(--surface); border: 1px dashed var(--border); border-radius: 5px; }
+        .empty-state i      { font-size: 2rem; color: var(--text-dim); display: block; margin-bottom: 1rem; }
+        .empty-state p      { font-size: 13px; color: var(--text-muted); }
+
+        footer { text-align: center; padding: 2rem 0 0; font-size: 10px; letter-spacing: 0.18em; color: var(--text-dim); border-top: 1px solid var(--border-soft); margin-top: 3rem; }
+        footer span { color: var(--text-muted); }
+
+        /* =============================================
+           RESPONSIVE MOBILE
+        ============================================= */
+        @media (max-width: 840px) {
+            .dash-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 640px) {
+            .page-wrap { padding: 0 0 5.5rem; }
+            .brand-header { padding: 1.5rem 1rem 1.2rem; margin-bottom: 0; }
+            .brand-logo   { font-size: 1.6rem; }
+
+            /* Topbar compact */
+            .topbar { border-radius: 0; border-left: none; border-right: none; border-top: none; padding: 0.8rem 1rem; margin-bottom: 0; }
+            .btn-logout { padding: 0.4rem 0.7rem; font-size: 8px; }
+
+            /* Cache le grid, on gère via tabs */
+            .dash-grid { display: block !important; }
+
+            /* Panneaux onglets — le JS gère display, CSS gère juste le padding */
+            #panel-form, #panel-list { padding: 1rem; }
+
+            /* Barre onglets fixe en bas */
+            .mobile-tabs {
+                display: flex !important;
+                position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+                background: var(--surface);
+                border-top: 1px solid var(--gold-border);
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+            }
+            .tab-btn {
+                flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+                gap: 4px; padding: 0.75rem 0.5rem;
+                background: none; border: none; border-top: 2px solid transparent;
+                cursor: pointer; font-family: 'Jost', sans-serif;
+                font-size: 8px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+                color: var(--text-dim); transition: color 0.2s, border-color 0.2s;
+            }
+            .tab-btn i      { font-size: 1.1rem; }
+            .tab-btn.active { color: var(--gold); border-top-color: var(--gold); }
+
+            /* Formulaire mobile */
+            .form-card { position: static; box-shadow: none; border-radius: 5px; }
+            .form-card-body { padding: 1rem; }
+            .f-row { grid-template-columns: 1fr; }
+            .f-input { padding: 0.88rem 1rem; font-size: 15px; }
+
+            /* Liste mobile */
+            .list-head { padding: 0 0 0.4rem; }
+            .list-head h3 { font-size: 1.2rem; }
+
+            /* Carte événement mobile */
+            .ev-card-body { flex-direction: column; padding: 1rem; gap: 0.8rem; }
+            .ev-title     { font-size: 1.15rem; }
+
+            /* Stats pleine largeur */
+            .ev-stats  { width: 100%; }
+            .stat-b    { flex: 1; padding: 0.6rem 0.4rem; }
+            .stat-n    { font-size: 1.2rem; }
+
+            /* Actions en grille 2 col */
+            .ev-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 0.8rem 1rem; }
+            .slug-chip  { grid-column: 1 / -1; }
+            .act-btn    { justify-content: center; padding: 0.65rem; font-size: 10px; }
+
+            /* Masquer colonne message dans tableau RSVP */
+            .rsvp-tbl th:last-child,
+            .rsvp-tbl td:last-child { display: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrap">
+
+    <!-- Brand -->
+    <div class="brand-header">
+        <div class="brand-logo">Prestige<span>Invites</span></div>
+        <div class="brand-tagline">Espace Organisateur</div>
+        <div class="brand-orn">
+            <div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line"></div>
         </div>
     </div>
 
-    <!-- TABLEAU DE BORD (DASHBOARD) -->
-    <div id="dashboard-box" class="max-w-5xl mx-auto space-y-8 hidden">
-        
-        <!-- En-tête Utilisateur -->
-        <div class="flex justify-between items-center bg-gray-900 border border-white/10 p-4 rounded-2xl">
+    <!-- ===== AUTH ===== -->
+    <div id="auth-box">
+        <div class="auth-top-bar"></div>
+        <div class="auth-inner">
+            <h2 id="auth-title">Connexion</h2>
+            <p class="auth-sub">Gérez vos événements et suivez vos invités</p>
+            <form id="auth-form">
+                <div class="f-group">
+                    <label class="f-label">Adresse e-mail</label>
+                    <input type="email" id="auth-email" required placeholder="votre@email.com" class="f-input">
+                </div>
+                <div class="f-group">
+                    <label class="f-label">Mot de passe</label>
+                    <input type="password" id="auth-password" required placeholder="••••••••" class="f-input">
+                </div>
+                <button type="submit" id="btn-auth" class="btn-primary">Se connecter</button>
+            </form>
+            <button onclick="toggleAuthMode()" id="btn-toggle-mode" class="btn-link">Pas encore de compte ? S'inscrire</button>
+        </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div id="dashboard-box">
+
+        <!-- Topbar -->
+        <div class="topbar">
             <div>
-                <p class="text-xs text-gray-400 font-medium">Aloupha Cards</p>
-                <p id="user-email" class="text-sm font-bold text-indigo-400">...</p>
+                <div class="topbar-name">PrestigeInvites</div>
+                <div class="topbar-email" id="user-email">…</div>
             </div>
-            <button onclick="logout()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer">
-                <i class="fa-solid fa-power-off mr-1"></i> Déconnexion
+            <button onclick="logout()" class="btn-logout">
+                <i class="fa-solid fa-power-off"></i>&nbsp; Déconnexion
             </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
-            <!-- BLOC FORMULAIRE CRÉATION / MODIFICATION -->
-            <div class="bg-gray-900 border border-white/10 rounded-3xl p-6 h-fit space-y-4 shadow-xl">
-                <h3 id="form-heading" class="text-lg font-bold tracking-tight text-indigo-400 border-b border-white/5 pb-2">
-                    <i class="fa-solid fa-circle-plus mr-1"></i> Créer un Événement
-                </h3>
-                <form id="event-form" class="space-y-3 text-left">
-                    
-                    <div>
-                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Titre de l'événement</label>
-                        <input type="text" id="event-title-input" required placeholder="Ex: Célébration de la vie de Feu Jean" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
+        <!-- Barre onglets mobile (invisible sur desktop via CSS) -->
+        <div class="mobile-tabs" style="display:none;" id="mobile-tabs">
+            <button class="tab-btn active" id="tab-list-btn" onclick="switchTab('list')">
+                <i class="fa-solid fa-list"></i>
+                Invitations
+            </button>
+            <button class="tab-btn" id="tab-form-btn" onclick="switchTab('form')">
+                <i class="fa-solid fa-circle-plus"></i>
+                Créer
+            </button>
+        </div>
 
-                    <div>
-                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Qui invite ? (Hôte)</label>
-                        <input type="text" id="event-host-input" placeholder="Ex: La famille CODJO, Marc & Sophie..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-indigo-500">
-                    </div>
+        <div class="dash-grid">
 
-                    <div>
-                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Phrase d'invitation personnalisée</label>
-                        <input type="text" id="event-phrase-input" placeholder="Ex: vous prie d'assister aux obsèques de..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder:text-gray-600 focus:outline-none focus:border-indigo-500">
+            <!-- Panneau Formulaire -->
+            <div id="panel-form">
+                <div class="form-card">
+                    <div class="form-top-bar"></div>
+                    <div class="form-card-head">
+                        <i class="fa-solid fa-circle-plus" id="form-icon"></i>
+                        <h3 id="form-heading">Créer un événement</h3>
                     </div>
-
-                    <div>
-                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Type d'événement</label>
-                        <select id="event-type-input" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                            <option value="Mariage">🎉 Mariage</option>
-                            <option value="Anniversaire">🎂 Anniversaire</option>
-                            <option value="Gala / Fête">✨ Gala / Fête</option>
-                            <option value="Conférence">💼 Conférence</option>
-                            <option value="Obsèques">🕊️ Obsèques</option>
-                        </select>
+                    <div class="form-card-body">
+                        <form id="event-form">
+                            <div class="f-group">
+                                <label class="f-label">Titre de l'événement *</label>
+                                <input type="text" id="event-title-input" required placeholder="Ex : Mariage de Marc & Sophie" class="f-input">
+                            </div>
+                            <div class="f-row">
+                                <div class="f-group">
+                                    <label class="f-label">Qui invite ? (hôte)</label>
+                                    <input type="text" id="event-host-input" placeholder="La famille CODJO…" class="f-input">
+                                </div>
+                                <div class="f-group">
+                                    <label class="f-label">Type d'événement *</label>
+                                    <input type="text" id="event-type-input" required placeholder="Mariage, Gala, Obsèques…" class="f-input">
+                                    <p class="f-hint">Saisir librement</p>
+                                </div>
+                            </div>
+                            <div class="f-group">
+                                <label class="f-label">Phrase d'invitation</label>
+                                <input type="text" id="event-phrase-input" placeholder="vous prie d'assister à…" class="f-input">
+                            </div>
+                            <div class="form-sep"></div>
+                            <div class="f-row">
+                                <div class="f-group">
+                                    <label class="f-label">Date & heure *</label>
+                                    <input type="datetime-local" id="event-date-input" required class="f-input">
+                                </div>
+                                <div class="f-group">
+                                    <label class="f-label">Slug (lien court) *</label>
+                                    <input type="text" id="event-slug-input" required placeholder="mariage-marc" class="f-input">
+                                    <p class="f-hint" id="slug-help">Un id unique sera ajouté.</p>
+                                </div>
+                            </div>
+                            <div class="f-group">
+                                <label class="f-label">Lieu *</label>
+                                <input type="text" id="event-location-input" required placeholder="Ex : Majestic, Cotonou" class="f-input">
+                            </div>
+                            <div class="f-group">
+                                <label class="f-label">Lien GPS Google Maps</label>
+                                <input type="url" id="event-maps-input" placeholder="https://maps.google.com/…" class="f-input">
+                            </div>
+                            <div class="form-sep"></div>
+                            <div class="f-group">
+                                <label class="f-label" id="file-label">Image de fond (max 2 Mo)</label>
+                                <input type="file" id="event-bg-file" accept="image/*" class="f-input">
+                            </div>
+                            <button type="submit" id="btn-submit-event" class="btn-primary">Générer l'invitation</button>
+                            <button type="button" id="btn-cancel-edit" onclick="resetFormToCreateMode()" class="btn-ghost" style="display:none;">Annuler la modification</button>
+                        </form>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Date & Heure</label>
-                            <input type="datetime-local" id="event-date-input" required class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lien personnalisé (Slug)</label>
-                            <input type="text" id="event-slug-input" required placeholder="mariage-marc" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                            <p id="slug-help-text" class="text-[9px] text-gray-500 mt-0.5">Un identifiant unique y sera ajouté.</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lieu</label>
-                        <input type="text" id="event-location-input" required placeholder="Ex: Majestic, Cotonou" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Lien GPS Google Maps</label>
-                        <input type="url" id="event-maps-input" placeholder="https://maps.google.com/..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[11px] font-medium text-gray-400 mb-0.5">Couleur Thème</label>
-                            <input type="color" id="event-theme-input" value="#6366f1" class="w-full h-9 bg-black/40 border border-white/10 rounded-xl px-1 py-0.5 cursor-pointer">
-                        </div>
-                        <div>
-                            <label id="file-label" class="block text-[11px] font-medium text-gray-400 mb-0.5">Image de fond (Max 2Mo)</label>
-                            <input type="file" id="event-bg-file" accept="image/*" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer">
-                        </div>
-                    </div>
-
-                    <button type="submit" id="btn-submit-event" class="w-full bg-indigo-600 hover:bg-indigo-700 font-bold py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer">
-                        Générer mon Invitation
-                    </button>
-                    
-                    <button type="button" id="btn-cancel-edit" onclick="resetFormToCreateMode()" class="w-full bg-white/5 hover:bg-white/10 border border-white/10 font-medium py-2 rounded-xl transition text-xs tracking-wide hidden cursor-pointer">
-                        Annuler la modification
-                    </button>
-                </form>
+                </div>
             </div>
 
-            <!-- LISTE DES INVITATIONS ACTIVE -->
-            <div class="md:col-span-2 space-y-4">
-                <h3 class="text-xl font-black tracking-tight">
-                    <i class="fa-solid fa-list text-indigo-400 mr-1"></i> Mes Invitations Actives
-                </h3>
-                <div id="events-list" class="grid grid-cols-1 gap-4">
-                    <p class="text-gray-500 text-sm italic">Aucun événement créé pour le moment.</p>
+            <!-- Panneau Liste -->
+            <div id="panel-list">
+                <div class="list-head">
+                    <h3>Mes invitations</h3>
+                    <span class="events-count" id="events-count"></span>
+                </div>
+                <div id="events-list">
+                    <div class="empty-state">
+                        <i class="fa-regular fa-envelope"></i>
+                        <p>Aucune invitation créée pour le moment.</p>
+                    </div>
                 </div>
             </div>
 
         </div>
     </div>
-    <footer class="w-full text-center py-8 text-gray-600 text-xs tracking-wide border-t border-white/5 mt-12">
-        <p>Développé par <span class="text-gray-400 font-semibold">Alouphaa</span> &copy; 2026</p>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = "https://yukywftxppvgywpsapmh.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1a3l3ZnR4cHB2Z3l3cHNhcG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDUyMTcsImV4cCI6MjA5NTk4MTIxN30.d-jB_JTMnHRyZxrZLD3eEgppt6P4cbsk0qZ7VKSMdtQ";
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let isSignUpMode = false;
-        let currentUser = null;
-        
-        // Variables d'état pour la modification
-        let isEditMode = false;
-        let editEventId = null;
-        let editExistingImageUrl = null;
+    <footer><p>Développé par <span>Alouphaa</span> &copy; 2026</p></footer>
+</div>
 
-        function toggleAuthMode() {
-            isSignUpMode = !isSignUpMode;
-            document.getElementById('auth-title').innerText = isSignUpMode ? "Inscription Nouveau Compte" : "Connexion Organisateur";
-            document.getElementById('btn-auth').innerText = isSignUpMode ? "Créer mon compte" : "Se connecter";
-            document.getElementById('btn-toggle-mode').innerText = isSignUpMode ? "Déjà un compte ? Se connecter" : "Pas encore de compte ? S'inscrire";
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const SUPABASE_URL      = "https://yukywftxppvgywpsapmh.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1a3l3ZnR4cHB2Z3l3cHNhcG1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA0MDUyMTcsImV4cCI6MjA5NTk4MTIxN30.d-jB_JTMnHRyZxrZLD3eEgppt6P4cbsk0qZ7VKSMdtQ";
+    const supabaseClient    = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let isSignUpMode = false, currentUser = null;
+    let isEditMode = false, editEventId = null, editExistingImageUrl = null;
+    let localEventsArray = [];
+
+    /* ===== AUTH ===== */
+    function toggleAuthMode() {
+        isSignUpMode = !isSignUpMode;
+        document.getElementById('auth-title').textContent      = isSignUpMode ? "Inscription"      : "Connexion";
+        document.getElementById('btn-auth').textContent        = isSignUpMode ? "Créer mon compte" : "Se connecter";
+        document.getElementById('btn-toggle-mode').textContent = isSignUpMode
+            ? "Déjà un compte ? Se connecter" : "Pas encore de compte ? S'inscrire";
+    }
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+        const btn = document.getElementById('btn-auth');
+        btn.textContent = "Traitement…"; btn.disabled = true;
+
+        if (isSignUpMode) {
+            const { error } = await supabaseClient.auth.signUp({ email, password });
+            if (error) alert("Erreur : " + error.message);
+            else alert("Inscription réussie ! Vérifiez vos e-mails.");
+        } else {
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) alert("Erreur de connexion : " + error.message);
+            else checkUserSession();
         }
+        btn.disabled = false;
+        btn.textContent = isSignUpMode ? "Créer mon compte" : "Se connecter";
+    });
 
-        document.getElementById('auth-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            const btn = document.getElementById('btn-auth');
+    async function checkUserSession() {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session) {
+            currentUser = session.user;
+            document.getElementById('auth-box').style.display      = 'none';
+            document.getElementById('dashboard-box').style.display = 'block';
+            document.getElementById('user-email').textContent      = currentUser.email;
+            initMobileTabs();
+            loadUserEvents();
+        } else {
+            document.getElementById('auth-box').style.display      = '';
+            document.getElementById('dashboard-box').style.display = 'none';
+        }
+    }
 
-            btn.innerText = "Traitement...";
-            btn.disabled = true;
+    async function logout() {
+        await supabaseClient.auth.signOut();
+        currentUser = null;
+        checkUserSession();
+    }
 
-            if (isSignUpMode) {
-                const { data, error } = await supabaseClient.auth.signUp({ email, password });
-                if (error) alert("Erreur d'inscription: " + error.message);
-                else alert("Inscription réussie ! Vérifiez vos e-mails pour confirmer.");
-            } else {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if (error) alert("Erreur de connexion: " + error.message);
-                else checkUserSession();
-            }
-            btn.disabled = false;
-            btn.innerText = isSignUpMode ? "Créer mon compte" : "Se connecter";
+    /* ===== MOBILE TABS ===== */
+    function isMobile() { return window.innerWidth <= 640; }
+
+    function initMobileTabs() {
+        const tabs     = document.getElementById('mobile-tabs');
+        const pForm    = document.getElementById('panel-form');
+        const pList    = document.getElementById('panel-list');
+
+        if (isMobile()) {
+            tabs.style.display  = 'flex';
+            // Afficher la liste par défaut, cacher le formulaire
+            pList.style.display = 'block';
+            pForm.style.display = 'none';
+            document.getElementById('tab-list-btn').classList.add('active');
+            document.getElementById('tab-form-btn').classList.remove('active');
+        } else {
+            // Desktop : tout visible, pas de tabs
+            tabs.style.display  = 'none';
+            pForm.style.display = 'block';
+            pList.style.display = 'block';
+        }
+    }
+
+    function switchTab(tab) {
+        const pForm = document.getElementById('panel-form');
+        const pList = document.getElementById('panel-list');
+        const bForm = document.getElementById('tab-form-btn');
+        const bList = document.getElementById('tab-list-btn');
+
+        if (tab === 'form') {
+            pForm.style.display = 'block';
+            pList.style.display = 'none';
+            bForm.classList.add('active');
+            bList.classList.remove('active');
+        } else {
+            pForm.style.display = 'none';
+            pList.style.display = 'block';
+            bList.classList.add('active');
+            bForm.classList.remove('active');
+        }
+    }
+
+    window.addEventListener('resize', initMobileTabs);
+
+    /* ===== FORMATAGE DATE ===== */
+    function formatFrenchDate(dateString) {
+        if (!dateString) return "—";
+        return new Date(dateString).toLocaleDateString('fr-FR', {
+            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
+    }
 
-        async function checkUserSession() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                document.getElementById('auth-box').classList.add('hidden');
-                document.getElementById('dashboard-box').classList.remove('hidden');
-                document.getElementById('user-email').innerText = currentUser.email;
-                loadUserEvents();
-            } else {
-                document.getElementById('auth-box').classList.remove('hidden');
-                document.getElementById('dashboard-box').classList.add('hidden');
-            }
+    /* ===== CHARGEMENT ÉVÉNEMENTS ===== */
+    async function loadUserEvents() {
+        const { data: events, error } = await supabaseClient
+            .from('evenements')
+            .select('*, rsvp(*)')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false });
+
+        const container = document.getElementById('events-list');
+
+        if (error || !events || events.length === 0) {
+            container.innerHTML = `<div class="empty-state"><i class="fa-regular fa-envelope"></i><p>Aucune invitation créée pour le moment.</p></div>`;
+            document.getElementById('events-count').textContent = '';
+            return;
         }
 
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            currentUser = null;
-            checkUserSession();
-        }
+        localEventsArray = events;
+        document.getElementById('events-count').textContent = `${events.length} invitation${events.length > 1 ? 's' : ''}`;
+        container.innerHTML = '';
 
-        function formatFrenchDate(dateString) {
-            if (!dateString) return "-";
-            const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            return new Date(dateString).toLocaleDateString('fr-FR', options);
-        }
+        events.forEach(ev => {
+            const rsvps         = ev.rsvp || [];
+            const presentsCount = rsvps.filter(r => r.presence).length;
+            const absentsCount  = rsvps.filter(r => !r.presence).length;
+            const totalPlaces   = rsvps.filter(r => r.presence).reduce((s, r) => s + 1 + (r.nombre_accompagnateurs || 0), 0);
+            const folderUrl     = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
+            const inviteLink    = `${folderUrl}/index.html?e=${ev.slug}`;
+            const drawerId      = `drawer-${ev.id}`;
 
-        // Variable globale temporaire pour stocker les objets d'événements chargés
-        let localEventsArray = [];
+            const rowsHtml = rsvps.length === 0
+                ? `<tr><td colspan="4" style="text-align:center;padding:1rem 0;color:var(--text-dim);font-style:italic;font-size:12px;">Aucune réponse pour le moment</td></tr>`
+                : rsvps.map(r => `
+                    <tr>
+                        <td>${r.nom_invite}</td>
+                        <td><span class="rsvp-pill ${r.presence ? 'p' : 'a'}">${r.presence ? 'Présent' : 'Absent'}</span></td>
+                        <td style="text-align:center;">${r.presence ? (1 + (r.nombre_accompagnateurs || 0)) : 0}</td>
+                        <td style="font-style:italic;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.commentaire || ''}">${r.commentaire || '—'}</td>
+                    </tr>`).join('');
 
-        async function loadUserEvents() {
-            const { data: events, error } = await supabaseClient
-                .from('evenements')
-                .select('*, rsvp(*)') 
-                .eq('user_id', currentUser.id)
-                .order('created_at', { ascending: false });
-
-            const container = document.getElementById('events-list');
-            if (error || !events || events.length === 0) {
-                container.innerHTML = `<p class="text-gray-500 text-sm italic p-4 bg-gray-900 border border-white/5 rounded-2xl">Vous n'avez pas encore généré d'invitation.</p>`;
-                return;
-            }
-
-            localEventsArray = events; // Sauvegarde locale pour l'édition rapide
-            container.innerHTML = "";
-            
-            events.forEach(ev => {
-                const rsvps = ev.rsvp || [];
-                const presentsCount = rsvps.filter(r => r.presence === true).length;
-                const absentsCount = rsvps.filter(r => r.presence === false).length;
-                
-                const totalPersonnesReelles = rsvps
-                    .filter(r => r.presence === true)
-                    .reduce((sum, r) => sum + 1 + (r.nombre_accompagnateurs || 0), 0);
-
-                const currentFolderUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-                const inviteLink = `${currentFolderUrl}/index.html?e=${ev.slug}`;
-                const detailsId = `details-${ev.id}`;
-
-                let rowsHtml = "";
-                if (rsvps.length === 0) {
-                    rowsHtml = `<tr><td colspan="4" class="text-center text-xs py-4 text-gray-500 italic">Aucune réponse pour le moment</td></tr>`;
-                } else {
-                    rsvps.forEach(r => {
-                        rowsHtml += `
-                            <tr class="border-b border-white/5 text-xs text-gray-300">
-                                <td class="py-2.5 font-semibold">${r.nom_invite}</td>
-                                <td class="py-2.5">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.presence ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
-                                        ${r.presence ? 'Présent' : 'Absent'}
-                                    </span>
-                                </td>
-                                <td class="py-2.5 text-center">${r.presence ? (1 + (r.nombre_accompagnateurs || 0)) : 0}</td>
-                                <td class="py-2.5 max-w-[150px] truncate italic text-gray-400" title="${r.commentaire || ''}">${r.commentaire || '-'}</td>
-                            </tr>
-                        `;
-                    });
-                }
-
-                container.innerHTML += `
-                    <div class="bg-gray-900 border border-white/10 rounded-2xl overflow-hidden shadow-lg transition duration-200">
-                        <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                            <div class="space-y-1 flex-1">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="text-[10px] px-2.5 py-1 rounded-md font-bold uppercase tracking-wider text-white" style="background-color: ${ev.couleur_theme || '#6366f1'}">${ev.type_evenement}</span>
-                                    <span class="text-[10px] text-gray-500 font-mono">/${ev.slug}</span>
-                                </div>
-                                <h4 class="text-lg font-black pt-1">${ev.titre}</h4>
-                                <p class="text-xs text-gray-400"><i class="fa-solid fa-calendar-days mr-1 text-indigo-400"></i> ${formatFrenchDate(ev.date_heure)}</p>
-                                <p class="text-xs text-gray-400"><i class="fa-solid fa-location-dot mr-1 text-indigo-400"></i> ${ev.lieu}</p>
-                            </div>
-                            
-                            <!-- Statistiques abrégées -->
-                            <div class="flex items-center gap-2 bg-black/20 p-2 rounded-xl border border-white/5 h-fit">
-                                <div class="text-center px-3 py-1 border-r border-white/5">
-                                    <span class="block text-sm font-black text-green-400">${presentsCount}</span>
-                                    <span class="text-[8px] uppercase text-gray-500 font-bold">Venant</span>
-                                </div>
-                                <div class="text-center px-3 py-1 border-r border-white/5">
-                                    <span class="block text-sm font-black text-red-400">${absentsCount}</span>
-                                    <span class="text-[8px] uppercase text-gray-500 font-bold">Absents</span>
-                                </div>
-                                <div class="text-center px-3 py-1">
-                                    <span class="block text-sm font-black text-indigo-400">${totalPersonnesReelles}</span>
-                                    <span class="text-[8px] uppercase text-gray-500 font-bold">Places</span>
-                                </div>
-                            </div>
-
-                            <!-- BOUTONS D'ACTION (Voir, Invités, Copier + MODIFIER/SUPPRIMER) -->
-                            <div class="flex flex-col gap-1.5 min-w-[160px]">
-                                <div class="flex gap-1">
-                                    <a href="${inviteLink}" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-2.5 py-2 rounded-xl text-center transition flex-1 flex items-center justify-center">
-                                        <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                    </a>
-                                    <button onclick="document.getElementById('${detailsId}').classList.toggle('hidden')" class="bg-gray-800 hover:bg-gray-700 text-white font-bold text-xs px-2.5 py-2 rounded-xl text-center transition flex-1 cursor-pointer" title="Voir les invités">
-                                        <i class="fa-solid fa-users"></i>
-                                    </button>
-                                    <button onclick="prepareEditEvent('${ev.id}')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-bold text-xs px-2.5 py-2 rounded-xl text-center transition flex-1 cursor-pointer" title="Modifier l'événement">
-                                        <i class="fa-solid fa-pencil"></i>
-                                    </button>
-                                    <button onclick="deleteEvent('${ev.id}', '${ev.titre}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold text-xs px-2.5 py-2 rounded-xl text-center transition flex-1 cursor-pointer" title="Supprimer l'événement">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </div>
-                                <button onclick="navigator.clipboard.writeText('${inviteLink}'); alert('Lien de l\\'invitation copié !');" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 font-bold text-[10px] px-3 py-1.5 rounded-xl transition cursor-pointer">
-                                    <i class="fa-solid fa-copy mr-1"></i> Copier le Lien
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Tiroir masqué des Réponses Invités -->
-                        <div id="${detailsId}" class="hidden bg-black/30 border-t border-white/5 p-4 transition-all">
-                            <h5 class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-2"><i class="fa-solid fa-list-check mr-1"></i> Liste des réponses</h5>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr class="border-b border-white/10 text-[10px] uppercase text-gray-500 tracking-wider">
-                                            <th class="pb-2">Nom complet</th>
-                                            <th class="pb-2">Statut</th>
-                                            <th class="pb-2 text-center">Pers.</th>
-                                            <th class="pb-2">Message</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${rowsHtml}
-                                    </tbody>
-                                </table>
-                            </div>
+            const div = document.createElement('div');
+            div.className = 'ev-card';
+            div.innerHTML = `
+                <div class="ev-card-body">
+                    <div class="ev-info">
+                        <span class="ev-type-badge">${ev.type_evenement}</span>
+                        <div class="ev-title">${ev.titre}</div>
+                        <div class="ev-meta">
+                            <span><i class="fa-solid fa-calendar-days"></i>${formatFrenchDate(ev.date_heure)}</span>
+                            <span><i class="fa-solid fa-location-dot"></i>${ev.lieu}</span>
                         </div>
                     </div>
-                `;
-            });
+                    <div class="ev-stats">
+                        <div class="stat-b"><span class="stat-n g">${presentsCount}</span><span class="stat-l">Venant</span></div>
+                        <div class="stat-b"><span class="stat-n r">${absentsCount}</span><span class="stat-l">Absents</span></div>
+                        <div class="stat-b"><span class="stat-n o">${totalPlaces}</span><span class="stat-l">Places</span></div>
+                    </div>
+                </div>
+                <div class="ev-actions">
+                    <span class="slug-chip">/${ev.slug}</span>
+                    <a href="${inviteLink}" target="_blank" class="act-btn gold"><i class="fa-solid fa-arrow-up-right-from-square"></i> Voir</a>
+                    <button onclick="toggleDrawer('${drawerId}')" class="act-btn"><i class="fa-solid fa-users"></i> Invités</button>
+                    <button onclick="copyLink('${inviteLink}')" class="act-btn gold"><i class="fa-solid fa-copy"></i> Copier</button>
+                    <button onclick="prepareEditEvent('${ev.id}')" class="act-btn amber"><i class="fa-solid fa-pencil"></i></button>
+                    <button onclick="deleteEvent('${ev.id}', '${ev.titre.replace(/'/g, "\\'")}')" class="act-btn red"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                <div class="rsvp-drawer" id="${drawerId}">
+                    <div class="rsvp-inner">
+                        <h5><i class="fa-solid fa-list-check" style="margin-right:6px;"></i>Liste des réponses</h5>
+                        <div style="overflow-x:auto;">
+                            <table class="rsvp-tbl">
+                                <thead><tr><th>Nom</th><th>Statut</th><th style="text-align:center;">Pers.</th><th>Message</th></tr></thead>
+                                <tbody>${rowsHtml}</tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>`;
+            container.appendChild(div);
+        });
+    }
+
+    function toggleDrawer(id) { document.getElementById(id).classList.toggle('open'); }
+
+    function copyLink(url) {
+        navigator.clipboard.writeText(url);
+        alert('Lien copié dans le presse-papiers !');
+    }
+
+    /* ===== MODIFICATION ===== */
+    function prepareEditEvent(id) {
+        const event = localEventsArray.find(ev => ev.id === id);
+        if (!event) return;
+        isEditMode = true; editEventId = event.id; editExistingImageUrl = event.image_fond;
+
+        document.getElementById('form-icon').className      = 'fa-solid fa-pencil';
+        document.getElementById('form-heading').textContent = "Modifier l'événement";
+        const btn = document.getElementById('btn-submit-event');
+        btn.textContent = "Enregistrer les modifications";
+        btn.className = "btn-primary edit-mode";
+        document.getElementById('btn-cancel-edit').style.display = 'block';
+
+        document.getElementById('event-title-input').value    = event.titre;
+        document.getElementById('event-host-input').value     = event.hote || '';
+        document.getElementById('event-phrase-input').value   = event.phrase_invitation || '';
+        document.getElementById('event-type-input').value     = event.type_evenement;
+        document.getElementById('event-location-input').value = event.lieu;
+        document.getElementById('event-maps-input').value     = event.lien_maps || '';
+
+        if (event.date_heure) {
+            const d = new Date(event.date_heure);
+            const iso = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString();
+            document.getElementById('event-date-input').value = iso.slice(0, 16);
         }
 
-        // COMMUTER LE FORMULAIRE EN MODE ÉDITION (MISE A JOUR)
-        function prepareEditEvent(id) {
-            const event = localEventsArray.find(ev => ev.id === id);
-            if (!event) return;
+        const slugInput = document.getElementById('event-slug-input');
+        slugInput.value = event.slug.split('-').slice(0, -1).join('-');
+        slugInput.disabled = true; slugInput.style.opacity = '0.35';
+        document.getElementById('slug-help').textContent = "Lien figé pour ne pas casser les partages.";
+        if (event.image_fond) document.getElementById('file-label').textContent = "Remplacer l'image (optionnel)";
 
-            isEditMode = true;
-            editEventId = event.id;
-            editExistingImageUrl = event.image_fond;
+        if (isMobile()) switchTab('form');
+        else document.getElementById('form-heading').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 
-            // Changement visuel des intitulés du formulaire
-            document.getElementById('form-heading').innerHTML = `<i class="fa-solid fa-pencil mr-1"></i> Modifier l'Événement`;
-            document.getElementById('btn-submit-event').innerText = "Enregistrer les modifications";
-            document.getElementById('btn-submit-event').className = "w-full bg-amber-500 hover:bg-amber-600 text-black font-black py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer";
-            document.getElementById('btn-cancel-edit').classList.remove('hidden');
+    function resetFormToCreateMode() {
+        isEditMode = false; editEventId = null; editExistingImageUrl = null;
+        document.getElementById('form-icon').className      = 'fa-solid fa-circle-plus';
+        document.getElementById('form-heading').textContent = 'Créer un événement';
+        const btn = document.getElementById('btn-submit-event');
+        btn.textContent = "Générer l'invitation"; btn.className = "btn-primary";
+        document.getElementById('btn-cancel-edit').style.display = 'none';
+        const si = document.getElementById('event-slug-input');
+        si.disabled = false; si.style.opacity = '1';
+        document.getElementById('slug-help').textContent     = "Un id unique sera ajouté.";
+        document.getElementById('file-label').textContent   = "Image de fond (max 2 Mo)";
+        document.getElementById('event-form').reset();
+        if (isMobile()) switchTab('list');
+    }
 
-            // Pré-remplissage des champs
-            document.getElementById('event-title-input').value = event.titre;
-            document.getElementById('event-host-input').value = event.hote || "";
-            document.getElementById('event-phrase-input').value = event.phrase_invitation || "";
-            document.getElementById('event-type-input').value = event.type_evenement;
-            document.getElementById('event-location-input').value = event.lieu;
-            document.getElementById('event-maps-input').value = event.lien_maps || "";
-            document.getElementById('event-theme-input').value = event.couleur_theme || "#6366f1";
-            
-            // Formatage de la date pour le champ type="datetime-local" (YYYY-MM-DDTHH:MM)
-            if (event.date_heure) {
-                const d = new Date(event.date_heure);
-                const isoStr = new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString();
-                document.getElementById('event-date-input').value = isoStr.slice(0, 16);
+    /* ===== SUPPRESSION ===== */
+    async function deleteEvent(id, title) {
+        if (!confirm(`⚠️ Supprimer définitivement "${title}" ?\n\nToutes les réponses invités seront effacées.`)) return;
+        await supabaseClient.from('rsvp').delete().eq('evenement_id', id);
+        const { error } = await supabaseClient.from('evenements').delete().eq('id', id);
+        if (error) { alert("Erreur : " + error.message); return; }
+        alert("Événement supprimé.");
+        if (isEditMode && editEventId === id) resetFormToCreateMode();
+        loadUserEvents();
+    }
+
+    /* ===== SOUMISSION FORMULAIRE ===== */
+    document.getElementById('event-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btn-submit-event');
+        btn.textContent = isEditMode ? "Enregistrement…" : "Création en cours…";
+        btn.disabled = true;
+
+        const titre             = document.getElementById('event-title-input').value.trim();
+        const type_evenement    = document.getElementById('event-type-input').value.trim();
+        const date_heure        = document.getElementById('event-date-input').value;
+        const lieu              = document.getElementById('event-location-input').value.trim();
+        const lien_maps         = document.getElementById('event-maps-input').value.trim();
+        const hote              = document.getElementById('event-host-input').value.trim();
+        const phrase_invitation = document.getElementById('event-phrase-input').value.trim();
+        const imageFile         = document.getElementById('event-bg-file').files[0];
+        let   image_fond        = isEditMode ? editExistingImageUrl : null;
+
+        if (imageFile) {
+            if (imageFile.size > 2 * 1024 * 1024) {
+                alert("❌ Image trop lourde ! Maximum 2 Mo.");
+                document.getElementById('event-bg-file').value = '';
+                btn.textContent = isEditMode ? "Enregistrer les modifications" : "Générer l'invitation";
+                btn.disabled = false; return;
             }
-
-            // Gestion du slug en modification (Désactivé pour ne pas casser les liens déjà partagés)
-            const slugInput = document.getElementById('event-slug-input');
-            slugInput.value = event.slug.split('-').slice(0, -1).join('-'); // affiche la racine
-            slugInput.disabled = true;
-            slugInput.classList.add('opacity-40');
-            document.getElementById('slug-help-text').innerText = "Le lien unique de cette invitation ne peut plus être changé.";
-            
-            if (event.image_fond) {
-                document.getElementById('file-label').innerText = "Remplacer l'image (Optionnel)";
-            }
-
-            // Remonter automatiquement l'écran sur le formulaire
-            document.getElementById('form-heading').scrollIntoView({ behavior: 'smooth' });
+            const fileExt  = imageFile.name.split('.').pop();
+            const filePath = `${currentUser.id}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.${fileExt}`;
+            const { error: ue } = await supabaseClient.storage.from('fonds-invitations').upload(filePath, imageFile);
+            if (ue) { alert("Erreur upload : " + ue.message); btn.disabled = false; return; }
+            const { data: pub } = supabaseClient.storage.from('fonds-invitations').getPublicUrl(filePath);
+            image_fond = pub.publicUrl;
         }
 
-        // RÉINITIALISER LE FORMULAIRE EN MODE CRÉATION INTÉGRALE
-        function resetFormToCreateMode() {
-            isEditMode = false;
-            editEventId = null;
-            editExistingImageUrl = null;
+        const payload = {
+            titre, type_evenement, date_heure, lieu,
+            lien_maps: lien_maps || null, image_fond,
+            hote: hote || null, phrase_invitation: phrase_invitation || null
+        };
 
-            document.getElementById('form-heading').innerHTML = `<i class="fa-solid fa-circle-plus mr-1"></i> Créer un Événement`;
-            document.getElementById('btn-submit-event').innerText = "Générer mon Invitation";
-            document.getElementById('btn-submit-event').className = "w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition text-sm tracking-wide mt-2 cursor-pointer";
-            document.getElementById('btn-cancel-edit').classList.add('hidden');
-
-            const slugInput = document.getElementById('event-slug-input');
-            slugInput.disabled = false;
-            slugInput.classList.remove('opacity-40');
-            document.getElementById('slug-help-text').innerText = "Un identifiant unique y sera ajouté.";
-            document.getElementById('file-label').innerText = "Image de fond (Max 2Mo)";
-
-            document.getElementById('event-form').reset();
-        }
-
-        // SUPPRESSION SÉCURISÉE D'UN ÉVÉNEMENT
-        async function deleteEvent(id, title) {
-            const confirmation = confirm(`⚠️ Êtes-vous sûr de vouloir supprimer définitivement l'événement "${title}" ?\n\nCette action effacera également TOUTES les réponses des invités associées.`);
-            if (!confirmation) return;
-
-            // 1. Suppression des RSVP dépendants d'abord (Si ON DELETE CASCADE n'est pas actif dans PostgreSQL)
-            await supabaseClient
-                .from('rsvp')
-                .delete()
-                .eq('evenement_id', id);
-
-            // 2. Suppression de l'événement principal
-            const { error } = await supabaseClient
-                .from('evenements')
-                .delete()
-                .eq('id', id);
-
-            if (error) {
-                alert("Erreur lors de la suppression : " + error.message);
-            } else {
-                alert("🗑️ L'événement a été supprimé avec succès.");
-                if (isEditMode && editEventId === id) {
-                    resetFormToCreateMode();
-                }
+        if (isEditMode) {
+            const { error } = await supabaseClient.from('evenements').update(payload).eq('id', editEventId);
+            if (error) alert("Erreur : " + error.message);
+            else {
+                alert("✨ Événement modifié avec succès !");
+                resetFormToCreateMode();
                 loadUserEvents();
             }
+        } else {
+            let rawSlug = document.getElementById('event-slug-input').value.trim().toLowerCase();
+            rawSlug = rawSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                             .replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || "evenement";
+            const slug = `${rawSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
+            const { error } = await supabaseClient.from('evenements').insert([{ ...payload, user_id: currentUser.id, slug }]);
+            if (error) alert("Erreur : " + error.message);
+            else {
+                alert(`🎉 Invitation créée !\nLien : /index.html?e=${slug}`);
+                document.getElementById('event-form').reset();
+                loadUserEvents();
+                if (isMobile()) switchTab('list');
+            }
         }
 
-        // TRAITEMENT ENVOI : AJOUT OU MODIFICATION (UPSERT LOGIC)
-        document.getElementById('event-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('btn-submit-event');
-            submitBtn.innerText = isEditMode ? "Enregistrement..." : "Création de l'invitation...";
-            submitBtn.disabled = true;
+        btn.textContent = isEditMode ? "Enregistrer les modifications" : "Générer l'invitation";
+        btn.disabled = false;
+    });
 
-            const titre = document.getElementById('event-title-input').value.trim();
-            const type_evenement = document.getElementById('event-type-input').value;
-            const date_heure = document.getElementById('event-date-input').value;
-            const lieu = document.getElementById('event-location-input').value.trim();
-            const lien_maps = document.getElementById('event-maps-input').value.trim();
-            const couleur_theme = document.getElementById('event-theme-input').value;
-            const hote = document.getElementById('event-host-input').value.trim();
-            const phrase_invitation = document.getElementById('event-phrase-input').value.trim();
-            
-            const imageFile = document.getElementById('event-bg-file').files[0];
-            let image_fond = isEditMode ? editExistingImageUrl : null;
-
-            // Upload de la nouvelle image si elle est fournie
-            if (imageFile) {
-                const maxSizeInMB = 2;
-                const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
-
-                if (imageFile.size > maxSizeInBytes) {
-                    alert(`❌ L'image est trop lourde ! La taille maximale autorisée est de ${maxSizeInMB} Mo.`);
-                    document.getElementById('event-bg-file').value = ""; 
-                    submitBtn.innerText = isEditMode ? "Enregistrement..." : "Générer mon Invitation";
-                    submitBtn.disabled = false;
-                    return; 
-                }
-
-                const fileExt = imageFile.name.split('.').pop();
-                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
-                const filePath = `${currentUser.id}/${fileName}`;
-
-                const { data: uploadData, error: uploadError } = await supabaseClient
-                    .storage
-                    .from('fonds-invitations')
-                    .upload(filePath, imageFile);
-
-                if (uploadError) {
-                    alert("Erreur lors du chargement de la nouvelle image : " + uploadError.message);
-                    submitBtn.innerText = isEditMode ? "Enregistrement..." : "Générer mon Invitation";
-                    submitBtn.disabled = false;
-                    return;
-                }
-
-                const { data: publicUrlData } = supabaseClient
-                    .storage
-                    .from('fonds-invitations')
-                    .getPublicUrl(filePath);
-                
-                image_fond = publicUrlData.publicUrl;
-            }
-
-            if (isEditMode) {
-                // EXÉCUTER UNE MISE À JOUR (UPDATE)
-                const { error } = await supabaseClient
-                    .from('evenements')
-                    .update({
-                        titre, 
-                        type_evenement, 
-                        date_heure, 
-                        lieu, 
-                        lien_maps: lien_maps || null, 
-                        couleur_theme, 
-                        image_fond,
-                        hote: hote || null,
-                        phrase_invitation: phrase_invitation || null
-                    })
-                    .eq('id', editEventId);
-
-                if (error) {
-                    alert("Erreur lors de la mise à jour : " + error.message);
-                } else {
-                    alert("✨ L'événement a été modifié avec succès !");
-                    resetFormToCreateMode();
-                    loadUserEvents();
-                }
-
-            } else {
-                // EXÉCUTER UNE INSERTION CLASSIQUE (CREATE)
-                let rawSlug = document.getElementById('event-slug-input').value.trim().toLowerCase();
-                rawSlug = rawSlug.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                rawSlug = rawSlug.replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-                
-                if (!rawSlug) rawSlug = "evenement";
-                const uniqueId = Math.floor(1000 + Math.random() * 9000); 
-                const slug = `${rawSlug}-${uniqueId}`;
-
-                const { error } = await supabaseClient
-                    .from('evenements')
-                    .insert([{
-                        user_id: currentUser.id,
-                        titre, 
-                        type_evenement, 
-                        date_heure, 
-                        lieu, 
-                        lien_maps: lien_maps || null, 
-                        couleur_theme, 
-                        image_fond,
-                        slug,
-                        hote: hote || null,
-                        phrase_invitation: phrase_invitation || null
-                    }]);
-
-                if (error) {
-                    alert("Erreur lors de la création : " + error.message);
-                } else {
-                    alert(`🎉 Félicitations ! Votre invitation a été configurée.\nLien généré : /index.html?e=${slug}`);
-                    document.getElementById('event-form').reset();
-                    loadUserEvents();
-                }
-            }
-
-            submitBtn.innerText = isEditMode ? "Enregistrement..." : "Générer mon Invitation";
-            submitBtn.disabled = false;
-        });
-
-        checkUserSession();
-    </script>
+    checkUserSession();
+</script>
 </body>
 </html>
